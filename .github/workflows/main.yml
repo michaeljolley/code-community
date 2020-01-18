@@ -1,0 +1,11 @@
+name: Code Community
+
+on: [push, pull_request, issues]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: michaeljolley/code-community@master
