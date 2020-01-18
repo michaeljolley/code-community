@@ -8,7 +8,7 @@ const run = async (): Promise<void> => {
   console.log(`Triggered due to: ${github.context.eventName}`)
 
   switch (github.context.eventName) {
-    case 'issue':
+    case 'issues':
       issues.processIssue(github.context)
     default:
   }
