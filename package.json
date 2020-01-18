@@ -2,7 +2,7 @@
   "name": "code-community",
   "version": "0.0.1",
   "description": "Automates greeting and recognizing contributors to a repo",
-  "main": "dist/main.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "format": "prettier --write **/*.ts",
