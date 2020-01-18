@@ -4676,6 +4676,7 @@ const github = __importStar(__webpack_require__(469));
 const issues = __importStar(__webpack_require__(689));
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     console.log(`Triggered due to: ${github.context.eventName}`);
+    console.dir(`${github.context}`);
     switch (github.context.eventName) {
         case 'issues':
             issues.processIssue(github.context);

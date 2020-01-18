@@ -7,6 +7,8 @@ import * as issues from './issues'
 const run = async (): Promise<void> => {
   console.log(`Triggered due to: ${github.context.eventName}`)
 
+  console.dir(`${github.context}`)
+
   switch (github.context.eventName) {
     case 'issues':
       issues.processIssue(github.context)
