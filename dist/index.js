@@ -4673,9 +4673,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 //import * as core from '@actions/core'
 const github = __importStar(__webpack_require__(469));
 //import * as io from '@actions/io'
+const issues = __importStar(__webpack_require__(689));
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     console.log(`Triggered due to: ${github.context.eventName}`);
-    console.dir(github.context.payload);
+    switch (github.context.eventName) {
+        case 'issue':
+            issues.processIssue(github.context);
+        default:
+    }
 });
 run();
 
@@ -7380,6 +7385,30 @@ function authenticate(state, options) {
 module.exports = function btoa(str) {
   return new Buffer(str).toString('base64')
 }
+
+
+/***/ }),
+
+/***/ 689:
+/***/ (function(__unusedmodule, exports) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.processIssue = (context) => __awaiter(void 0, void 0, void 0, function* () {
+    if (context.action === 'opened') {
+        console.dir(context.issue);
+    }
+});
 
 
 /***/ }),
