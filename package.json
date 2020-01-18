@@ -1,0 +1,36 @@
+{
+  "name": "code-community",
+  "version": "0.0.1",
+  "description": "Automates greeting and recognizing contributors to a repo",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc",
+    "format": "prettier --write **/*.ts",
+    "format-check": "prettier --check **/*.ts",
+    "lint": "eslint src/**/*.ts",
+    "pack": "ncc build",
+    "test": "jest",
+    "all": "npm run build && npm run format && npm run lint && npm run pack && npm test"
+  },
+  "author": "Michael Jolley <mike@sparcapp.io>",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.2.1",
+    "@actions/github": "^2.0.1",
+    "@actions/io": "^1.0.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.9.0",
+    "@types/node": "^13.1.8",
+    "@typescript-eslint/parser": "^2.16.0",
+    "eslint": "^6.8.0",
+    "eslint-plugin-github": "^3.4.0",
+    "eslint-plugin-jest": "^23.6.0",
+    "jest": "^24.9.0",
+    "jest-circus": "^24.9.0",
+    "js-yaml": "^3.13.1",
+    "prettier": "^1.19.1",
+    "ts-jest": "^24.3.0",
+    "typescript": "^3.7.5"
+  }
+}

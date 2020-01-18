@@ -1,0 +1,8 @@
+name: Code Community
+description: Automates greeting and recognizing contributors to a repo
+runs:
+  using: node12
+  main: dist/index.js
+branding:
+  icon: mail
+  color: red
