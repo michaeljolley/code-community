@@ -18,20 +18,25 @@ export const addContributor = async (user: IUser, contributions: [string]) => {
 const initializeRepo = async () => {
   // Check if the .code-communityrc file exists. If not,
   // create it.
-  const rcFile = await getFile('.code-communityrc')
-  if (rcFile.status !== 200) {
-    const initResult = await createOrUpdateFile(
-      '.code-communityrc',
-      '{}',
-      'Adding .code-communityrc'
-    )
-    if (initResult.status !== 200) {
-      console.error(
-        `Error initializing repo: ${initResult.status} \n${JSON.stringify(
-          initResult.headers
-        )}`
+
+  try {
+    const rcFile = await getFile('.code-communityrc')
+    if (rcFile.status !== 200) {
+      const initResult = await createOrUpdateFile(
+        '.code-communityrc',
+        '{}',
+        'Adding .code-communityrc'
       )
+      if (initResult.status !== 200) {
+        console.error(
+          `Error initializing repo: ${initResult.status} \n${JSON.stringify(
+            initResult.headers
+          )}`
+        )
+      }
     }
+  } catch (error) {
+    console.error(error)
   }
 }
 
