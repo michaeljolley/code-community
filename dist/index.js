@@ -7772,6 +7772,7 @@ exports.processIssue = (payload) => __awaiter(void 0, void 0, void 0, function* 
         return;
     }
     yield contributors.addContributor({}, ['bug']);
+    console.dir(payload);
     if (payload.action === 'opened') {
         const user = payload.issue['user'];
         console.log(user.login);

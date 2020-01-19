@@ -11,6 +11,8 @@ export const processIssue = async (payload: WebhookPayload) => {
 
   await contributors.addContributor({}, ['bug'])
 
+  console.dir(payload)
+
   if (payload.action === 'opened') {
     const user = payload.issue['user'] as IUser
     console.log(user.login)
