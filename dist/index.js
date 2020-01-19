@@ -519,7 +519,7 @@ exports.addContributor = (user, contributions) => __awaiter(void 0, void 0, void
     yield initializeRepo();
 });
 const initializeRepo = () => __awaiter(void 0, void 0, void 0, function* () {
-    const globber = yield glob.create('README.md'); // '.code-communityrc')
+    const globber = yield glob.create('**/README.md'); // '.code-communityrc')
     const files = yield globber.glob();
     if (files.length > 0) {
         console.dir(files[0]);
@@ -5139,14 +5139,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-//import * as core from '@actions/core'
 const github = __importStar(__webpack_require__(469));
 //import * as io from '@actions/io'
 const issues = __importStar(__webpack_require__(689));
 const contributors = __importStar(__webpack_require__(93));
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(`Triggered due to: ${github.context.eventName}`);
-    console.dir(github.context);
     yield contributors.addContributor({}, ['code']);
     switch (github.context.eventName) {
         case 'issues':

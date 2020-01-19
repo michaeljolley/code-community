@@ -9,7 +9,7 @@ export const addContributor = async (user: IUser, contributions: [string]) => {
 }
 
 const initializeRepo = async () => {
-  const globber = await glob.create('README.md') // '.code-communityrc')
+  const globber = await glob.create('**/README.md') // '.code-communityrc')
   const files = await globber.glob()
 
   if (files.length > 0) {
