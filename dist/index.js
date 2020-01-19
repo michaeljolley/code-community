@@ -512,9 +512,13 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const github = __importStar(__webpack_require__(469));
+const btoa_lite_1 = __importDefault(__webpack_require__(675));
 const githubToken = core.getInput('githubToken');
 const owner = github.context.repo.owner;
 const repo = github.context.repo.repo;
@@ -531,7 +535,7 @@ const initializeRepo = () => __awaiter(void 0, void 0, void 0, function* () {
     }
     catch (error) {
         const initResult = yield createOrUpdateFile('.code-communityrc', '{}', 'Adding .code-communityrc');
-        if (initResult.status !== 200) {
+        if (initResult.status !== 201) {
             console.error(`Error initializing repo: ${initResult.status} \n${JSON.stringify(initResult.headers)}`);
         }
     }
@@ -544,14 +548,12 @@ const getFile = (path) => __awaiter(void 0, void 0, void 0, function* () {
     });
 });
 const createOrUpdateFile = (path, content, message) => __awaiter(void 0, void 0, void 0, function* () {
-    const buffer = new Buffer(content);
-    const contentBase64 = buffer.toString('base64');
     return yield octokit.repos.createOrUpdateFile({
         owner,
         repo,
         path,
         message,
-        content: contentBase64
+        content: btoa_lite_1.default(content)
     });
 });
 

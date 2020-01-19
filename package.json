@@ -18,10 +18,12 @@
     "@actions/core": "^1.2.1",
     "@actions/github": "^2.0.1",
     "@actions/glob": "^0.1.0",
-    "@actions/io": "^1.0.2"
+    "@actions/io": "^1.0.2",
+    "btoa-lite": "^1.0.0"
   },
   "devDependencies": {
     "@octokit/types": "^2.1.0",
+    "@types/btoa-lite": "^1.0.0",
     "@types/jest": "^24.9.0",
     "@types/node": "^13.1.8",
     "@typescript-eslint/parser": "^2.16.0",

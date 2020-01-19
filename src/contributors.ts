@@ -1,6 +1,7 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import * as Octokit from '@octokit/rest'
+import btoa from 'btoa-lite'
 
 import {IUser} from './interfaces/IUser'
 
@@ -27,7 +28,7 @@ const initializeRepo = async () => {
       '{}',
       'Adding .code-communityrc'
     )
-    if (initResult.status !== 200) {
+    if (initResult.status !== 201) {
       console.error(
         `Error initializing repo: ${initResult.status} \n${JSON.stringify(
           initResult.headers
@@ -52,13 +53,11 @@ const createOrUpdateFile = async (
   content: string,
   message: string
 ): Promise<Octokit.Response<Octokit.ReposCreateOrUpdateFileResponse>> => {
-  const buffer = new Buffer(content)
-  const contentBase64 = buffer.toString('base64')
   return await octokit.repos.createOrUpdateFile({
     owner,
     repo,
     path,
     message,
-    content: contentBase64
+    content: btoa(content)
   })
 }
