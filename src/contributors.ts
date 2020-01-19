@@ -52,11 +52,13 @@ const createOrUpdateFile = async (
   content: string,
   message: string
 ): Promise<Octokit.Response<Octokit.ReposCreateOrUpdateFileResponse>> => {
+  const buffer = new Buffer(content)
+  const contentBase64 = buffer.toString('base64')
   return await octokit.repos.createOrUpdateFile({
     owner,
     repo,
     path,
     message,
-    content: btoa(content)
+    content: contentBase64
   })
 }

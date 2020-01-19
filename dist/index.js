@@ -544,12 +544,14 @@ const getFile = (path) => __awaiter(void 0, void 0, void 0, function* () {
     });
 });
 const createOrUpdateFile = (path, content, message) => __awaiter(void 0, void 0, void 0, function* () {
+    const buffer = new Buffer(content);
+    const contentBase64 = buffer.toString('base64');
     return yield octokit.repos.createOrUpdateFile({
         owner,
         repo,
         path,
         message,
-        content: btoa(content)
+        content: contentBase64
     });
 });
 
