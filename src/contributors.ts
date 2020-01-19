@@ -3,15 +3,20 @@ import * as github from '@actions/github'
 import * as Octokit from '@octokit/rest'
 import btoa from 'btoa-lite'
 
-import {IUser} from './interfaces/IUser'
+import {IContributor} from './interfaces/IContributor'
 
-const githubToken = core.getInput('githubToken')
-const owner = github.context.repo.owner
-const repo = github.context.repo.repo
+const githubToken: string = core.getInput('githubToken')
+const owner: string = github.context.repo.owner
+const repo: string = github.context.repo.repo
 
-const octokit = new github.GitHub(githubToken)
+const octokit: github.GitHub = new github.GitHub(githubToken)
 
-export const addContributor = async (user: IUser, contributions: [string]) => {
+let rcFile: string | undefined
+
+export const addContributor = async (
+  user: IContributor,
+  contributions: [string]
+) => {
   // Ensure that the repo has its .code-communityrc file initialized
   await initializeRepo()
 }
@@ -21,7 +26,9 @@ const initializeRepo = async () => {
   // create it.
 
   try {
-    const rcFile = await getFile('.code-communityrc')
+    const getRCFileResult = await getFile('.code-communityrc')
+
+    rcFile = getRCFileResult.data
   } catch (error) {
     const initResult = await createOrUpdateFile(
       '.code-communityrc',
