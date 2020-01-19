@@ -22,19 +22,18 @@ const initializeRepo = async () => {
   try {
     const rcFile = await getFile('.code-communityrc')
   } catch (error) {
-    console.log(JSON.stringify(error))
-    // const initResult = await createOrUpdateFile(
-    //     '.code-communityrc',
-    //     '{}',
-    //     'Adding .code-communityrc'
-    //   )
-    //   if (initResult.status !== 200) {
-    //     console.error(
-    //       `Error initializing repo: ${initResult.status} \n${JSON.stringify(
-    //         initResult.headers
-    //       )}`
-    //     )
-    //   }
+    const initResult = await createOrUpdateFile(
+      '.code-communityrc',
+      '{}',
+      'Adding .code-communityrc'
+    )
+    if (initResult.status !== 200) {
+      console.error(
+        `Error initializing repo: ${initResult.status} \n${JSON.stringify(
+          initResult.headers
+        )}`
+      )
+    }
   }
 }
 
