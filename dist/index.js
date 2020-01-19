@@ -549,7 +549,7 @@ const createOrUpdateFile = (path, content, message) => __awaiter(void 0, void 0,
         repo,
         path,
         message,
-        content
+        content: btoa(content)
     });
 });
 

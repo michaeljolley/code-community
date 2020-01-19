@@ -57,6 +57,6 @@ const createOrUpdateFile = async (
     repo,
     path,
     message,
-    content
+    content: btoa(content)
   })
 }
