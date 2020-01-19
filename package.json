@@ -21,6 +21,7 @@
     "@actions/io": "^1.0.2"
   },
   "devDependencies": {
+    "@octokit/types": "^2.1.0",
     "@types/jest": "^24.9.0",
     "@types/node": "^13.1.8",
     "@typescript-eslint/parser": "^2.16.0",

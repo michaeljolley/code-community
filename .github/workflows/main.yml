@@ -9,3 +9,4 @@ jobs:
 
     steps:
     - uses: michaeljolley/code-community@master
+      githubToken: ${{ secrets.GITHUB_TOKEN }}
