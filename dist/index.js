@@ -519,7 +519,7 @@ exports.addContributor = (user, contributions) => __awaiter(void 0, void 0, void
     yield initializeRepo();
 });
 const initializeRepo = () => __awaiter(void 0, void 0, void 0, function* () {
-    const globber = yield glob.create('.code-communityrc');
+    const globber = yield glob.create('README.md'); // '.code-communityrc')
     const files = yield globber.glob();
     if (files.length > 0) {
         console.dir(files[0]);
