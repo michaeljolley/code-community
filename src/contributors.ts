@@ -4,8 +4,8 @@ import * as Octokit from '@octokit/rest'
 import btoa from 'btoa-lite'
 
 import {IContributor} from './interfaces/IContributor'
-import { IGitHubGetContentResponse } from './interfaces/IGitHubGetContentResponse'
-import { IContributorRC } from './interfaces/IContributorRC'
+import {IGitHubGetContentResponse} from './interfaces/IGitHubGetContentResponse'
+import {IContributorRC} from './interfaces/IContributorRC'
 
 const githubToken: string = core.getInput('githubToken')
 const owner: string = github.context.repo.owner
@@ -15,56 +15,68 @@ const octokit: github.GitHub = new github.GitHub(githubToken)
 
 let contribRC: IContributorRC
 
-export const addContributor = async (
-  contributor: IContributor
-) => {
+export const addContributor = async (contributor: IContributor) => {
   // Ensure that the repo has its .code-communityrc file initialized
   await initializeRC()
 
   const newContrib: IContributorRC = {
     contributors: [contributor]
   }
-  
-  console.log(JSON.stringify(contribRC))
-  contribRC = Object.assign({}, contribRC, newContrib);
 
-  console.log(JSON.stringify(contribRC))
-  
+  let filteredContributors = contribRC.contributors.filter(
+    f => f.login != contributor.login
+  )
+  let existingContributor = contribRC.contributors.find(
+    f => f.login == contributor.login
+  )
+
+  if (existingContributor) {
+    contributor.contributions = [
+      ...existingContributor.contributions,
+      ...contributor.contributions
+    ]
+  }
+
+  filteredContributors.push(contributor)
+  contribRC.contributors = filteredContributors
+
+  console.dir(contribRC.contributors)
 }
 
 const initializeRC = async () => {
   try {
     const getRCFileResult = await getFile('.code-communityrc')
-    contribRC = JSON.parse(atob((getRCFileResult.data as IGitHubGetContentResponse).content))
-  } catch (error) { // If we've got an error there is no .code-communityrc file
+    contribRC = JSON.parse(
+      atob((getRCFileResult.data as IGitHubGetContentResponse).content)
+    )
+  } catch (error) {
+    // If we've got an error there is no .code-communityrc file
     contribRC = {
-      contributors: [ {
-        'avatar_url': 'string',
-        profile: 'string',
-        login: 'MichaelJolley',
-        name: 'string',
-        contributions: [
-          'bug'
-        ]
-      }]
+      contributors: [
+        {
+          avatar_url: 'string',
+          profile: 'string',
+          login: 'MichaelJolley',
+          name: 'string',
+          contributions: ['bug']
+        }
+      ]
     }
   }
 }
 
-  // const initResult = await createOrUpdateFile(
-    //   '.code-communityrc',
-    //   '{}',
-    //   'Adding .code-communityrc'
-    // )
-    // if (initResult.status !== 201) {
-    //   console.error(
-    //     `Error initializing repo: ${initResult.status} \n${JSON.stringify(
-    //       initResult.headers
-    //     )}`
-    //   )
-    // }
-
-
+// const initResult = await createOrUpdateFile(
+//   '.code-communityrc',
+//   '{}',
+//   'Adding .code-communityrc'
+// )
+// if (initResult.status !== 201) {
+//   console.error(
+//     `Error initializing repo: ${initResult.status} \n${JSON.stringify(
+//       initResult.headers
+//     )}`
+//   )
+// }
 
 const getFile = async (
   path: string
