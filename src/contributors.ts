@@ -24,6 +24,8 @@ export const addContributor = async (
   const newContrib: IContributorRC = {
     contributors: [contributor]
   }
+  
+  console.log(JSON.stringify(contribRC))
 
   contribRC = {...contribRC, ...newContrib}
 

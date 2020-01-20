@@ -530,6 +530,7 @@ exports.addContributor = (contributor) => __awaiter(void 0, void 0, void 0, func
     const newContrib = {
         contributors: [contributor]
     };
+    console.log(JSON.stringify(contribRC));
     contribRC = Object.assign(Object.assign({}, contribRC), newContrib);
     console.log(JSON.stringify(contribRC));
 });
