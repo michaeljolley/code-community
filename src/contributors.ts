@@ -26,8 +26,7 @@ export const addContributor = async (
   }
   
   console.log(JSON.stringify(contribRC))
-
-  contribRC = {...contribRC, ...newContrib}
+  contribRC = Object.assign({}, contribRC, newContrib);
 
   console.log(JSON.stringify(contribRC))
   
