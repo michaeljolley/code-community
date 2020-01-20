@@ -519,29 +519,30 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const github = __importStar(__webpack_require__(469));
 const btoa_lite_1 = __importDefault(__webpack_require__(675));
+const IContributorRC_1 = __webpack_require__(419);
 const githubToken = core.getInput('githubToken');
 const owner = github.context.repo.owner;
 const repo = github.context.repo.repo;
+// github.GitHub.plugin(require('octokit-commit-multiple-files'))
 const octokit = new github.GitHub(githubToken);
-let contribRC;
-exports.addContributor = (contributor) => __awaiter(void 0, void 0, void 0, function* () {
+let contribRC = IContributorRC_1.defaultRC;
+let contributor;
+exports.addContributor = (contributorToAdd) => __awaiter(void 0, void 0, void 0, function* () {
+    contributor = contributorToAdd;
     // Ensure that the repo has its .code-communityrc file initialized
     yield initializeRC();
-    const newContrib = {
-        contributors: [contributor]
-    };
-    let filteredContributors = contribRC.contributors.filter(f => f.login != contributor.login);
-    let existingContributor = contribRC.contributors.find(f => f.login == contributor.login);
-    if (existingContributor) {
-        contributor.contributions = [
-            ...existingContributor.contributions,
-            ...contributor.contributions
-        ];
+    const shouldProceed = updateRC();
+    // TODO: Update README.md with contributions
+    // TODO: Below method only saves the .code-communityrc file. Need
+    // to commit all changes. (See https://github.com/mheap/octokit-commit-multiple-files)
+    if (shouldProceed) {
+        yield commitContribution();
     }
-    filteredContributors.push(contributor);
-    contribRC.contributors = filteredContributors;
-    console.dir(contribRC.contributors);
 });
+/**
+ * Loads an existing .code-communityrc from the repo or
+ * creates the contents for a new one.
+ */
 const initializeRC = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const getRCFileResult = yield getFile('.code-communityrc');
@@ -549,31 +550,49 @@ const initializeRC = () => __awaiter(void 0, void 0, void 0, function* () {
     }
     catch (error) {
         // If we've got an error there is no .code-communityrc file
-        contribRC = {
-            contributors: [
-                {
-                    avatar_url: 'string',
-                    profile: 'string',
-                    login: 'MichaelJolley',
-                    name: 'string',
-                    contributions: ['bug']
-                }
-            ]
-        };
     }
 });
-// const initResult = await createOrUpdateFile(
-//   '.code-communityrc',
-//   '{}',
-//   'Adding .code-communityrc'
-// )
-// if (initResult.status !== 201) {
-//   console.error(
-//     `Error initializing repo: ${initResult.status} \n${JSON.stringify(
-//       initResult.headers
-//     )}`
-//   )
-// }
+/**
+ * Updates the contribRC with the new contributor by adding them
+ * or updating the contributions of an existing record. Returns true
+ * if an update needs to be made to the repo; false if not.
+ * @param contributor Contributor to ensure is in the contribRC
+ */
+const updateRC = () => {
+    let existingContributor = contribRC.contributors.find(f => f.login == contributor.login);
+    // if the contributor exists, see if they have any new
+    // contribution types.  If so, merge and update.
+    if (existingContributor) {
+        const newContributions = existingContributor.contributions.filter(f => {
+            return contributor.contributions.indexOf(f) < 0;
+        });
+        // If there were no new contributions, we're done so return false.
+        if (newContributions.length === 0) {
+            return false;
+        }
+        let filteredContributors = contribRC.contributors.filter(f => f.login != contributor.login);
+        contributor.contributions = [
+            ...existingContributor.contributions,
+            ...contributor.contributions
+        ];
+        filteredContributors.push(contributor);
+        contribRC.contributors = filteredContributors;
+    }
+    else {
+        contribRC.contributors.push(contributor);
+    }
+    return true;
+};
+/**
+ * Commits all changes to repo
+ */
+const commitContribution = () => __awaiter(void 0, void 0, void 0, function* () {
+    const initResult = yield createOrUpdateFile('.code-communityrc', JSON.stringify(contribRC), `Adding contributions for ${contributor.login}`, 'master' // TODO: Should not be committed to master branch
+    );
+    if (initResult.status !== 201) {
+        console.error(`Error initializing repo: ${initResult.status} \n${JSON.stringify(initResult.headers)}`);
+    }
+});
 const getFile = (path) => __awaiter(void 0, void 0, void 0, function* () {
     return yield octokit.repos.getContents({
         owner,
@@ -581,11 +600,12 @@ const getFile = (path) => __awaiter(void 0, void 0, void 0, function* () {
         path
     });
 });
-const createOrUpdateFile = (path, content, message) => __awaiter(void 0, void 0, void 0, function* () {
+const createOrUpdateFile = (path, content, message, branch) => __awaiter(void 0, void 0, void 0, function* () {
     return yield octokit.repos.createOrUpdateFile({
         owner,
         repo,
         path,
+        branch,
         message,
         content: btoa_lite_1.default(content)
     });
@@ -4704,6 +4724,22 @@ module.exports = require("stream");
 
 /***/ }),
 
+/***/ 419:
+/***/ (function(__unusedmodule, exports) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.defaultRC = {
+    contributionsPerLine: 7,
+    skipCI: true,
+    files: ['README.md'],
+    contributors: []
+};
+
+
+/***/ }),
+
 /***/ 427:
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
@@ -7813,7 +7849,6 @@ exports.processIssue = (payload) => __awaiter(void 0, void 0, void 0, function* 
             avatar_url: user.avatar_url || '',
             login: user.login || '',
             profile: user.html_url || `https://github.com/${user.login}`,
-            name: '',
             contributions: labels.map(m => m.name)
         };
         yield contributors.addContributor(contributor);

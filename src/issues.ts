@@ -21,7 +21,6 @@ export const processIssue = async (payload: WebhookPayload) => {
       avatar_url: user.avatar_url || '',
       login: user.login || '',
       profile: user.html_url || `https://github.com/${user.login}`,
-      name: '',
       contributions: labels.map(m => m.name)
     }
 

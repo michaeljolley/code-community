@@ -20,7 +20,8 @@
     "@actions/glob": "^0.1.0",
     "@actions/io": "^1.0.2",
     "atob-lite": "^2.0.0",
-    "btoa-lite": "^1.0.0"
+    "btoa-lite": "^1.0.0",
+    "octokit-commit-multiple-files": "^2.0.0"
   },
   "devDependencies": {
     "@octokit/types": "^2.1.0",
