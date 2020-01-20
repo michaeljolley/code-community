@@ -25,6 +25,6 @@ export const processIssue = async (payload: WebhookPayload) => {
       contributions: labels.map(m => m.name)
     }
 
-    await contributors.addContributor(contributor, ['bug'])
+    await contributors.addContributor(contributor)
   }
 }

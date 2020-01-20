@@ -4,6 +4,8 @@ import * as Octokit from '@octokit/rest'
 import btoa from 'btoa-lite'
 
 import {IContributor} from './interfaces/IContributor'
+import { IGitHubGetContentResponse } from './interfaces/IGitHubGetContentResponse'
+import { IContributorRC } from './interfaces/IContributorRC'
 
 const githubToken: string = core.getInput('githubToken')
 const owner: string = github.context.repo.owner
@@ -11,39 +13,57 @@ const repo: string = github.context.repo.repo
 
 const octokit: github.GitHub = new github.GitHub(githubToken)
 
-let rcFile: string | undefined
+let contribRC: IContributorRC
 
 export const addContributor = async (
-  user: IContributor,
-  contributions: [string]
+  contributor: IContributor
 ) => {
   // Ensure that the repo has its .code-communityrc file initialized
-  await initializeRepo()
+  await initializeRC()
+
+  const newContrib: IContributorRC = {
+    contributors: [contributor]
+  }
+
+  contribRC = {...contribRC, ...newContrib}
+
+  console.dir(contribRC)
+  
 }
 
-const initializeRepo = async () => {
-  // Check if the .code-communityrc file exists. If not,
-  // create it.
-
+const initializeRC = async () => {
   try {
     const getRCFileResult = await getFile('.code-communityrc')
-
-    rcFile = getRCFileResult.data
-  } catch (error) {
-    const initResult = await createOrUpdateFile(
-      '.code-communityrc',
-      '{}',
-      'Adding .code-communityrc'
-    )
-    if (initResult.status !== 201) {
-      console.error(
-        `Error initializing repo: ${initResult.status} \n${JSON.stringify(
-          initResult.headers
-        )}`
-      )
+    contribRC = JSON.parse(atob((getRCFileResult.data as IGitHubGetContentResponse).content))
+  } catch (error) { // If we've got an error there is no .code-communityrc file
+    contribRC = {
+      contributors: [ {
+        'avatar_url': 'string',
+        profile: 'string',
+        login: 'MichaelJolley',
+        name: 'string',
+        contributions: [
+          'bug'
+        ]
+      }]
     }
   }
 }
+
+  // const initResult = await createOrUpdateFile(
+    //   '.code-communityrc',
+    //   '{}',
+    //   'Adding .code-communityrc'
+    // )
+    // if (initResult.status !== 201) {
+    //   console.error(
+    //     `Error initializing repo: ${initResult.status} \n${JSON.stringify(
+    //       initResult.headers
+    //     )}`
+    //   )
+    // }
+
+
 
 const getFile = async (
   path: string
