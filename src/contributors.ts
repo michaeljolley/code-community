@@ -27,7 +27,7 @@ export const addContributor = async (
 
   contribRC = {...contribRC, ...newContrib}
 
-  console.dir(contribRC)
+  console.log(JSON.stringify(contribRC))
   
 }
 

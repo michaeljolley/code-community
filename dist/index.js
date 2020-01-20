@@ -531,7 +531,7 @@ exports.addContributor = (contributor) => __awaiter(void 0, void 0, void 0, func
         contributors: [contributor]
     };
     contribRC = Object.assign(Object.assign({}, contribRC), newContrib);
-    console.dir(contribRC);
+    console.log(JSON.stringify(contribRC));
 });
 const initializeRC = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
