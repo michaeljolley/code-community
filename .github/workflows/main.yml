@@ -11,3 +11,4 @@ jobs:
     - uses: michaeljolley/code-community@master
       with:
         githubToken: ${{ secrets.GITHUB_TOKEN }}
+        contributorsPerRow: '7'
