@@ -6,16 +6,27 @@ import btoa from 'btoa-lite'
 import {IContributor} from './interfaces/IContributor'
 import {IGitHubGetContentResponse} from './interfaces/IGitHubGetContentResponse'
 import {defaultRC, IContributorRC} from './interfaces/IContributorRC'
+import { IFile } from './interfaces/IFile'
 
 const githubToken: string = core.getInput('githubToken')
+const contributorsPerRow: number = parseInt(core.getInput('contributorsPerRow'))
 const owner: string = github.context.repo.owner
 const repo: string = github.context.repo.repo
+
+const markup_badge_start = '<!-- CODE-COMMUNITY-BADGE:START - Do not remove or modify this section -->'
+const markup_badge_end = '<!-- CODE-COMMUNITY-BADGE:END -->'
+const markup_table_start = '<!-- CODE-COMMUNITY-LIST:START - Do not remove or modify this section -->'
+const markup_table_end = '<!-- CODE-COMMUNITY-LIST:END -->'
+
+const inputFiles: string[] = core.getInput('files').split(',') || ['README.md']
 
 // github.GitHub.plugin(require('octokit-commit-multiple-files'))
 const octokit: github.GitHub = new github.GitHub(githubToken)
 
 let contribRC: IContributorRC = defaultRC
 let contributor: IContributor
+
+const filesToUpdate: IFile[] = []
 
 export const addContributor = async (contributorToAdd: IContributor) => {
   contributor = contributorToAdd
@@ -25,11 +36,16 @@ export const addContributor = async (contributorToAdd: IContributor) => {
 
   const shouldProceed = updateRC()
 
-  // TODO: Update README.md with contributions
+  // TODO: Update files with contributions
   // TODO: Below method only saves the .code-communityrc file. Need
   // to commit all changes. (See https://github.com/mheap/octokit-commit-multiple-files)
 
   if (shouldProceed) {
+    // Load any files that we should review for updates
+    await initializeFiles()
+
+    await processFiles()
+
     await commitContribution()
   }
 }
@@ -44,8 +60,33 @@ const initializeRC = async () => {
     contribRC = JSON.parse(
       atob((getRCFileResult.data as IGitHubGetContentResponse).content)
     )
+    core.info('Initialized .code-communityrc file successfully')
   } catch (error) {
     // If we've got an error there is no .code-communityrc file
+    core.info('No .code-communityrc file identified within the repository.')
+  }
+}
+
+/**
+ * For each file mentioned in the .code-communtiyrc add it
+ * and its content to the filesToUpdate array.
+ */
+const initializeFiles = async () => {
+  for (let f = 0; f < inputFiles.length; f++) {
+    try {
+      const getFileResult = await getFile(inputFiles[f])
+      const fileContent = JSON.parse(
+        atob((getFileResult.data as IGitHubGetContentResponse).content)
+      )
+
+      filesToUpdate.push({
+        name: inputFiles[f],
+        content: fileContent
+      })
+      core.info(`Retrieved file to update: ${inputFiles[f]}`)
+    } catch (error) {
+      core.error(`Unable to retrieve input file: ${inputFiles[f]}`)
+    }
   }
 }
 
@@ -69,8 +110,11 @@ const updateRC = (): boolean => {
 
     // If there were no new contributions, we're done so return false.
     if (newContributions.length === 0) {
+      core.info(`No new contributions identified for ${contributor.login}`)
       return false
     }
+
+    core.info(`Identified new contributions for ${contributor.login}: ${contributor.contributions.join(', ')}`)
 
     let filteredContributors = contribRC.contributors.filter(
       f => f.login != contributor.login
@@ -86,6 +130,116 @@ const updateRC = (): boolean => {
     contribRC.contributors.push(contributor)
   }
   return true
+}
+
+/**
+ * Iterate through each input file and update 
+ * contributor table and badge
+ */
+const processFiles = async () => {
+  for (let i = 0; i < filesToUpdate.length; i++) {
+    let fileToUpdate: IFile = filesToUpdate[i]
+
+    const badgeStart: number = fileToUpdate.content.indexOf(markup_badge_start)
+    const badgeEnd: number = fileToUpdate.content.indexOf(markup_badge_end)
+
+    // Look through content for the badge markup and 
+    // if found, update
+    const badgeMarkup: string = 
+      `${markup_badge_start}\n[![All Contributors](https://img.shields.io/badge/all_contributors-${contribRC.contributors.length}-orange.svg?style=flat-square)](#contributors)${markup_badge_end}`
+  
+    if (badgeStart === -1 && 
+        badgeEnd === -1) {
+      fileToUpdate.content = `${badgeMarkup}\n${fileToUpdate.content}`
+    } else if (badgeStart >= 0 &&
+               badgeEnd >= 0 &&
+               badgeEnd > badgeStart) {
+      fileToUpdate.content = `${fileToUpdate.content.slice(0, badgeStart - 1)}\n${badgeMarkup}\n${fileToUpdate.content.slice(badgeEnd + markup_badge_end.length)}`
+    }
+
+    const tableStart: number = fileToUpdate.content.indexOf(markup_table_start)
+    const tableEnd: number = fileToUpdate.content.indexOf(markup_table_end)
+    
+    let contributorContent = buildContributorContent()
+
+    // Look through content for the table markup and
+    // if found, update
+    if (tableStart === -1 &&
+        tableEnd === -1) {
+      fileToUpdate.content = `${fileToUpdate.content}\n${contributorContent}`
+    } else if (tableStart >= 0 &&
+               tableEnd >= 0 &&
+               tableEnd > tableStart) {
+      fileToUpdate.content = `${fileToUpdate.content.slice(0, tableStart - 1)}\n${contributorContent}\n${fileToUpdate.content.slice(tableEnd + markup_table_end.length)}`
+    }
+  }
+}
+
+let contributorTable: string = ''
+
+const buildContributorContent = () : string => {
+  
+  contributorTable = '<table>\n'
+
+  let currentContrib: number = 0;
+
+  while (currentContrib < contribRC.contributors.length) {
+
+  }
+  currentContrib = buildContributorRow(currentContrib)
+
+  contributorTable = contributorTable + '</table>\n'
+  return contributorTable
+}
+
+const buildContributorRow = (contrib: number) : number => {
+  let contribRow: string = '<tr>\n'
+
+  let index: number = 0
+
+  while (index < contributorsPerRow &&
+        contrib < contribRC.contributors.length) {
+
+    const currentContrib: IContributor = contribRC.contributors[index] 
+
+    contribRow = contribRow + `<td align="center">
+            <a href="https://github.com/${currentContrib.login}">
+              <img src="${currentContrib.avatar_url}" width="100px;" alt=""/><br />
+              <sub><b>${currentContrib.login}</b></sub></a><br />`
+
+    for (let c: number = 0; c < currentContrib.contributions.length; c++) {
+      contribRow = contribRow + addContribution(currentContrib, currentContrib.contributions[c])
+    }
+
+    contribRow = contribRow + '</td>'
+
+    index++
+    contrib++
+  }
+
+  contribRow = contribRow + '</tr>\n'
+  contributorTable = contributorTable + contribRow
+
+  return contrib
+}
+
+const addContribution = (contrib: IContributor, contribution: string): string => {
+  switch (contribution) {
+    case 'bug':
+      return `<a href="https://github.com/${owner}/${repo}/issues?q=author%3A${contrib.login}" title="Bug reports">🐛</a> `
+    case 'enhancement':
+      return `<a href="https://github.com/${owner}/${repo}/issues?q=author%3A${contrib.login}" title="Ideas, Planning, & Feedback">🤔</a> `
+    case 'documentation':
+      return `<a href="https://github.com/${owner}/${repo}/commits?author=${contrib.login}" title="Documentation">📖</a> `
+    case 'code':
+      return `<a href="https://github.com/${owner}/${repo}/commits?author=${contrib.login}" title="Code">💻</a> `
+    case 'tests':
+      return `<a href="https://github.com/${owner}/${repo}/commits?author=${contrib.login}" title="Tests">⚠️</a> `
+    case 'content':
+      return `<a href="#content-${contrib.login}" title="Content">🖋</a> `
+    default:
+      return ''
+  }
 }
 
 /**
@@ -107,6 +261,10 @@ const commitContribution = async () => {
   }
 }
 
+/**
+ * Retrieves the content for a file within the repo
+ * @param path Path, including filename, relative to the root of the repo
+ */
 const getFile = async (
   path: string
 ): Promise<Octokit.Response<Octokit.ReposGetContentsResponse>> => {
@@ -117,6 +275,13 @@ const getFile = async (
   })
 }
 
+/**
+ * Creates or updates a file within the repo
+ * @param path Path, including filename, relative to the root of the repo
+ * @param content Content of the file to save
+ * @param message Commit message
+ * @param branch Branch to commit changes to
+ */
 const createOrUpdateFile = async (
   path: string,
   content: string,
