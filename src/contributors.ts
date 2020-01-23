@@ -18,7 +18,7 @@ const markup_badge_end = '<!-- CODE-COMMUNITY-BADGE:END -->'
 const markup_table_start = '<!-- CODE-COMMUNITY-LIST:START - Do not remove or modify this section -->'
 const markup_table_end = '<!-- CODE-COMMUNITY-LIST:END -->'
 
-const inputFiles: string[] = core.getInput('files').split(',') || ['README.md']
+const inputFiles: string[] = core.getInput('files') !== undefined ? core.getInput('files').split(',') : ['README.md']
 
 // github.GitHub.plugin(require('octokit-commit-multiple-files'))
 const octokit: github.GitHub = new github.GitHub(githubToken)
