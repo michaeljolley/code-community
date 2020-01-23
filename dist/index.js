@@ -521,7 +521,7 @@ const github = __importStar(__webpack_require__(469));
 const btoa_lite_1 = __importDefault(__webpack_require__(675));
 const IContributorRC_1 = __webpack_require__(419);
 const githubToken = core.getInput('githubToken');
-const contributorsPerRow = parseInt(core.getInput('contributorsPerRow'));
+const contributorsPerRow = (core.getInput('contributorsPerRow') === undefined ? 7 : parseInt(core.getInput('contributorsPerRow')));
 const owner = github.context.repo.owner;
 const repo = github.context.repo.repo;
 const markup_badge_start = '<!-- CODE-COMMUNITY-BADGE:START - Do not remove or modify this section -->';
@@ -652,6 +652,7 @@ const processFiles = () => __awaiter(void 0, void 0, void 0, function* () {
             tableEnd > tableStart) {
             fileToUpdate.content = `${fileToUpdate.content.slice(0, tableStart - 1)}\n${contributorContent}\n${fileToUpdate.content.slice(tableEnd + markup_table_end.length)}`;
         }
+        yield createOrUpdateFile(fileToUpdate.name, fileToUpdate.content, `Updating contributions on ${fileToUpdate.name}`, 'code-community');
     }
 });
 let contributorTable = '';
@@ -707,7 +708,7 @@ const addContribution = (contrib, contribution) => {
  * Commits all changes to repo
  */
 const commitContribution = () => __awaiter(void 0, void 0, void 0, function* () {
-    const initResult = yield createOrUpdateFile('.code-communityrc', JSON.stringify(contribRC), `Adding contributions for ${contributor.login}`, 'master' // TODO: Should not be committed to master branch
+    const initResult = yield createOrUpdateFile('.code-communityrc', JSON.stringify(contribRC), `Adding contributions for ${contributor.login}`, 'code-community' // TODO: Should not be committed to master branch
     );
     if (initResult.status !== 201) {
         console.error(`Error initializing repo: ${initResult.status} \n${JSON.stringify(initResult.headers)}`);

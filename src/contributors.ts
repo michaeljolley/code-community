@@ -9,7 +9,7 @@ import {defaultRC, IContributorRC} from './interfaces/IContributorRC'
 import { IFile } from './interfaces/IFile'
 
 const githubToken: string = core.getInput('githubToken')
-const contributorsPerRow: number = parseInt(core.getInput('contributorsPerRow'))
+const contributorsPerRow: number = (core.getInput('contributorsPerRow') === undefined ? 7 : parseInt(core.getInput('contributorsPerRow')))
 const owner: string = github.context.repo.owner
 const repo: string = github.context.repo.repo
 
@@ -172,6 +172,8 @@ const processFiles = async () => {
                tableEnd > tableStart) {
       fileToUpdate.content = `${fileToUpdate.content.slice(0, tableStart - 1)}\n${contributorContent}\n${fileToUpdate.content.slice(tableEnd + markup_table_end.length)}`
     }
+
+    await createOrUpdateFile(fileToUpdate.name, fileToUpdate.content, `Updating contributions on ${fileToUpdate.name}`, 'code-community')
   }
 }
 
@@ -250,7 +252,7 @@ const commitContribution = async () => {
     '.code-communityrc',
     JSON.stringify(contribRC),
     `Adding contributions for ${contributor.login}`,
-    'master' // TODO: Should not be committed to master branch
+    'code-community' // TODO: Should not be committed to master branch
   )
   if (initResult.status !== 201) {
     console.error(

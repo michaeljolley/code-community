@@ -6,3 +6,10 @@ runs:
 branding:
   icon: mail
   color: red
+inputs:
+  contributorsPerRow:
+    description: 'Number of contributors to display per row'
+    required: false
+  files:
+    description: 'Files (full path from root of repo) to update with contributors'
+    required: false
