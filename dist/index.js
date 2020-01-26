@@ -530,13 +530,14 @@ const markup_badge_start = '<!-- CODE-COMMUNITY-BADGE:START - Do not remove or m
 const markup_badge_end = '<!-- CODE-COMMUNITY-BADGE:END -->';
 const markup_table_start = '<!-- CODE-COMMUNITY-LIST:START - Do not remove or modify this section -->';
 const markup_table_end = '<!-- CODE-COMMUNITY-LIST:END -->';
-let inputFiles = ['README.md'];
+let inputFiles = [];
 // github.GitHub.plugin(require('octokit-commit-multiple-files'))
 const octokit = new github.GitHub(githubToken);
 let contribRC = IContributorRC_1.defaultRC;
 let contributor;
 const filesToUpdate = [];
 exports.addContributor = (contributorToAdd) => __awaiter(void 0, void 0, void 0, function* () {
+    console.dir(inputFiles);
     contributor = contributorToAdd;
     // Ensure that the repo has its .code-communityrc file initialized
     yield initializeRC();
@@ -571,10 +572,14 @@ const initializeRC = () => __awaiter(void 0, void 0, void 0, function* () {
  * and its content to the filesToUpdate array.
  */
 const initializeFiles = () => __awaiter(void 0, void 0, void 0, function* () {
-    // const filesProvided = core.getInput('files').split(',')
-    // if (filesProvided.length) {
-    //   inputFiles = filesProvided
-    // }
+    const filesProvided = core.getInput('files');
+    console.log(filesProvided);
+    if (filesProvided && filesProvided.length) {
+        inputFiles = filesProvided.split(',');
+    }
+    else {
+        inputFiles.push('README.md');
+    }
     console.dir(inputFiles);
     for (let f = 0; f < inputFiles.length; f++) {
         try {

@@ -23,7 +23,7 @@ const markup_table_start =
   '<!-- CODE-COMMUNITY-LIST:START - Do not remove or modify this section -->'
 const markup_table_end = '<!-- CODE-COMMUNITY-LIST:END -->'
 
-let inputFiles: string[] = ['README.md']
+let inputFiles: string[] = []
 
 // github.GitHub.plugin(require('octokit-commit-multiple-files'))
 const octokit: github.GitHub = new github.GitHub(githubToken)
@@ -34,6 +34,8 @@ let contributor: IContributor
 const filesToUpdate: IFile[] = []
 
 export const addContributor = async (contributorToAdd: IContributor) => {
+  console.dir(inputFiles)
+
   contributor = contributorToAdd
 
   // Ensure that the repo has its .code-communityrc file initialized
@@ -77,10 +79,15 @@ const initializeRC = async () => {
  * and its content to the filesToUpdate array.
  */
 const initializeFiles = async () => {
-  // const filesProvided = core.getInput('files').split(',')
-  // if (filesProvided.length) {
-  //   inputFiles = filesProvided
-  // }
+  const filesProvided = core.getInput('files')
+
+  console.log(filesProvided)
+
+  if (filesProvided && filesProvided.length) {
+    inputFiles = filesProvided.split(',')
+  } else {
+    inputFiles.push('README.md')
+  }
 
   console.dir(inputFiles)
 
