@@ -89,9 +89,7 @@ const initializeFiles = async () => {
     try {
       const getFileResult = await getFile(inputFiles[f])
       const fileData: IGitHubGetContentResponse = getFileResult.data as IGitHubGetContentResponse
-      const fileContent = JSON.parse(
-        atob(fileData.content.replace(/[\r\n]+/gm, ''))
-      )
+      const fileContent = atob(fileData.content.replace(/[\r\n]+/gm, ''))
 
       filesToUpdate.push({
         name: inputFiles[f],

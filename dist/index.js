@@ -584,7 +584,7 @@ const initializeFiles = () => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const getFileResult = yield getFile(inputFiles[f]);
             const fileData = getFileResult.data;
-            const fileContent = JSON.parse(atob_lite_1.default(fileData.content.replace(/[\r\n]+/gm, '')));
+            const fileContent = atob_lite_1.default(fileData.content.replace(/[\r\n]+/gm, ''));
             filesToUpdate.push({
                 name: inputFiles[f],
                 content: fileContent
