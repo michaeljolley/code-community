@@ -6,19 +6,27 @@ import btoa from 'btoa-lite'
 import {IContributor} from './interfaces/IContributor'
 import {IGitHubGetContentResponse} from './interfaces/IGitHubGetContentResponse'
 import {defaultRC, IContributorRC} from './interfaces/IContributorRC'
-import { IFile } from './interfaces/IFile'
+import {IFile} from './interfaces/IFile'
 
 const githubToken: string = core.getInput('githubToken')
-const contributorsPerRow: number = (core.getInput('contributorsPerRow') === undefined ? 7 : parseInt(core.getInput('contributorsPerRow')))
+const contributorsPerRow: number =
+  core.getInput('contributorsPerRow') === undefined
+    ? 7
+    : parseInt(core.getInput('contributorsPerRow'))
 const owner: string = github.context.repo.owner
 const repo: string = github.context.repo.repo
 
-const markup_badge_start = '<!-- CODE-COMMUNITY-BADGE:START - Do not remove or modify this section -->'
+const markup_badge_start =
+  '<!-- CODE-COMMUNITY-BADGE:START - Do not remove or modify this section -->'
 const markup_badge_end = '<!-- CODE-COMMUNITY-BADGE:END -->'
-const markup_table_start = '<!-- CODE-COMMUNITY-LIST:START - Do not remove or modify this section -->'
+const markup_table_start =
+  '<!-- CODE-COMMUNITY-LIST:START - Do not remove or modify this section -->'
 const markup_table_end = '<!-- CODE-COMMUNITY-LIST:END -->'
 
-const inputFiles: string[] = core.getInput('files') !== undefined ? core.getInput('files').split(',') : ['README.md']
+const inputFiles: string[] =
+  core.getInput('files') !== undefined
+    ? core.getInput('files').split(',')
+    : ['README.md']
 
 // github.GitHub.plugin(require('octokit-commit-multiple-files'))
 const octokit: github.GitHub = new github.GitHub(githubToken)
@@ -114,7 +122,11 @@ const updateRC = (): boolean => {
       return false
     }
 
-    core.info(`Identified new contributions for ${contributor.login}: ${contributor.contributions.join(', ')}`)
+    core.info(
+      `Identified new contributions for ${
+        contributor.login
+      }: ${contributor.contributions.join(', ')}`
+    )
 
     let filteredContributors = contribRC.contributors.filter(
       f => f.login != contributor.login
@@ -133,84 +145,96 @@ const updateRC = (): boolean => {
 }
 
 /**
- * Iterate through each input file and update 
+ * Iterate through each input file and update
  * contributor table and badge
  */
 const processFiles = async () => {
+  console.dir(filesToUpdate)
+
   for (let i = 0; i < filesToUpdate.length; i++) {
     let fileToUpdate: IFile = filesToUpdate[i]
 
     const badgeStart: number = fileToUpdate.content.indexOf(markup_badge_start)
     const badgeEnd: number = fileToUpdate.content.indexOf(markup_badge_end)
 
-    // Look through content for the badge markup and 
+    // Look through content for the badge markup and
     // if found, update
-    const badgeMarkup: string = 
-      `${markup_badge_start}\n[![All Contributors](https://img.shields.io/badge/all_contributors-${contribRC.contributors.length}-orange.svg?style=flat-square)](#contributors)${markup_badge_end}`
-  
-    if (badgeStart === -1 && 
-        badgeEnd === -1) {
+    const badgeMarkup: string = `${markup_badge_start}\n[![All Contributors](https://img.shields.io/badge/all_contributors-${contribRC.contributors.length}-orange.svg?style=flat-square)](#contributors)${markup_badge_end}`
+
+    if (badgeStart === -1 && badgeEnd === -1) {
       fileToUpdate.content = `${badgeMarkup}\n${fileToUpdate.content}`
-    } else if (badgeStart >= 0 &&
-               badgeEnd >= 0 &&
-               badgeEnd > badgeStart) {
-      fileToUpdate.content = `${fileToUpdate.content.slice(0, badgeStart - 1)}\n${badgeMarkup}\n${fileToUpdate.content.slice(badgeEnd + markup_badge_end.length)}`
+    } else if (badgeStart >= 0 && badgeEnd >= 0 && badgeEnd > badgeStart) {
+      fileToUpdate.content = `${fileToUpdate.content.slice(
+        0,
+        badgeStart - 1
+      )}\n${badgeMarkup}\n${fileToUpdate.content.slice(
+        badgeEnd + markup_badge_end.length
+      )}`
     }
 
     const tableStart: number = fileToUpdate.content.indexOf(markup_table_start)
     const tableEnd: number = fileToUpdate.content.indexOf(markup_table_end)
-    
+
     let contributorContent = buildContributorContent()
 
     // Look through content for the table markup and
     // if found, update
-    if (tableStart === -1 &&
-        tableEnd === -1) {
+    if (tableStart === -1 && tableEnd === -1) {
       fileToUpdate.content = `${fileToUpdate.content}\n${contributorContent}`
-    } else if (tableStart >= 0 &&
-               tableEnd >= 0 &&
-               tableEnd > tableStart) {
-      fileToUpdate.content = `${fileToUpdate.content.slice(0, tableStart - 1)}\n${contributorContent}\n${fileToUpdate.content.slice(tableEnd + markup_table_end.length)}`
+    } else if (tableStart >= 0 && tableEnd >= 0 && tableEnd > tableStart) {
+      fileToUpdate.content = `${fileToUpdate.content.slice(
+        0,
+        tableStart - 1
+      )}\n${contributorContent}\n${fileToUpdate.content.slice(
+        tableEnd + markup_table_end.length
+      )}`
     }
 
-    await createOrUpdateFile(fileToUpdate.name, fileToUpdate.content, `Updating contributions on ${fileToUpdate.name}`, 'code-community')
+    await createOrUpdateFile(
+      fileToUpdate.name,
+      fileToUpdate.content,
+      `Updating contributions on ${fileToUpdate.name}`,
+      'code-community'
+    )
   }
 }
 
 let contributorTable: string = ''
 
-const buildContributorContent = () : string => {
-  
+const buildContributorContent = (): string => {
   contributorTable = '<table>\n'
 
-  let currentContrib: number = 0;
+  let currentContrib: number = 0
 
-  while (currentContrib < contribRC.contributors.length) {
-
-  }
+  while (currentContrib < contribRC.contributors.length) {}
   currentContrib = buildContributorRow(currentContrib)
 
   contributorTable = contributorTable + '</table>\n'
   return contributorTable
 }
 
-const buildContributorRow = (contrib: number) : number => {
+const buildContributorRow = (contrib: number): number => {
   let contribRow: string = '<tr>\n'
 
   let index: number = 0
 
-  while (index < contributorsPerRow &&
-        contrib < contribRC.contributors.length) {
+  while (
+    index < contributorsPerRow &&
+    contrib < contribRC.contributors.length
+  ) {
+    const currentContrib: IContributor = contribRC.contributors[index]
 
-    const currentContrib: IContributor = contribRC.contributors[index] 
-
-    contribRow = contribRow + `<td align="center">
+    contribRow =
+      contribRow +
+      `<td align="center">
             <a href="https://github.com/${currentContrib.login}">
               <img src="${currentContrib.avatar_url}" width="100px;" alt=""/><br />
               <sub><b>${currentContrib.login}</b></sub></a><br />`
 
     for (let c: number = 0; c < currentContrib.contributions.length; c++) {
-      contribRow = contribRow + addContribution(currentContrib, currentContrib.contributions[c])
+      contribRow =
+        contribRow +
+        addContribution(currentContrib, currentContrib.contributions[c])
     }
 
     contribRow = contribRow + '</td>'
@@ -225,7 +249,10 @@ const buildContributorRow = (contrib: number) : number => {
   return contrib
 }
 
-const addContribution = (contrib: IContributor, contribution: string): string => {
+const addContribution = (
+  contrib: IContributor,
+  contribution: string
+): string => {
   switch (contribution) {
     case 'bug':
       return `<a href="https://github.com/${owner}/${repo}/issues?q=author%3A${contrib.login}" title="Bug reports">🐛</a> `
@@ -270,6 +297,8 @@ const commitContribution = async () => {
 const getFile = async (
   path: string
 ): Promise<Octokit.Response<Octokit.ReposGetContentsResponse>> => {
+  core.info(`getFile: ${path}`)
+
   return await octokit.repos.getContents({
     owner,
     repo,
