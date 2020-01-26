@@ -2,6 +2,7 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import * as Octokit from '@octokit/rest'
 import btoa from 'btoa-lite'
+import atob from 'atob-lite'
 
 import {IContributor} from './interfaces/IContributor'
 import {IGitHubGetContentResponse} from './interfaces/IGitHubGetContentResponse'
@@ -39,20 +40,20 @@ export const addContributor = async (contributorToAdd: IContributor) => {
   // Ensure that the repo has its .code-communityrc file initialized
   await initializeRC()
 
-  const shouldProceed = updateRC()
+  // const shouldProceed = updateRC()
 
-  // TODO: Update files with contributions
-  // TODO: Below method only saves the .code-communityrc file. Need
-  // to commit all changes. (See https://github.com/mheap/octokit-commit-multiple-files)
+  // // TODO: Update files with contributions
+  // // TODO: Below method only saves the .code-communityrc file. Need
+  // // to commit all changes. (See https://github.com/mheap/octokit-commit-multiple-files)
 
-  if (shouldProceed) {
-    // Load any files that we should review for updates
-    await initializeFiles()
+  // if (shouldProceed) {
+  //   // Load any files that we should review for updates
+  //   await initializeFiles()
 
-    await processFiles()
+  //   await processFiles()
 
-    await commitContribution()
-  }
+  //   await commitContribution()
+  // }
 }
 
 /**
@@ -63,7 +64,9 @@ const initializeRC = async () => {
   try {
     const getRCFileResult = await getFile('.code-communityrc')
     const fileData: IGitHubGetContentResponse = getRCFileResult.data as IGitHubGetContentResponse
-    const parsedContent: string = atob(fileData.content.replace('/\n/g', ''))
+    const parsedContent: string = atob(
+      fileData.content.replace(/[\r\n]+/gm, '')
+    )
     console.log(parsedContent)
     contribRC = JSON.parse(parsedContent)
     core.info('Initialized .code-communityrc file successfully')

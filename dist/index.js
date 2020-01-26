@@ -519,6 +519,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const github = __importStar(__webpack_require__(469));
 const btoa_lite_1 = __importDefault(__webpack_require__(675));
+const atob_lite_1 = __importDefault(__webpack_require__(368));
 const IContributorRC_1 = __webpack_require__(419);
 const githubToken = core.getInput('githubToken');
 const contributorsPerRow = core.getInput('contributorsPerRow') === undefined
@@ -540,16 +541,16 @@ exports.addContributor = (contributorToAdd) => __awaiter(void 0, void 0, void 0,
     contributor = contributorToAdd;
     // Ensure that the repo has its .code-communityrc file initialized
     yield initializeRC();
-    const shouldProceed = updateRC();
-    // TODO: Update files with contributions
-    // TODO: Below method only saves the .code-communityrc file. Need
-    // to commit all changes. (See https://github.com/mheap/octokit-commit-multiple-files)
-    if (shouldProceed) {
-        // Load any files that we should review for updates
-        yield initializeFiles();
-        yield processFiles();
-        yield commitContribution();
-    }
+    // const shouldProceed = updateRC()
+    // // TODO: Update files with contributions
+    // // TODO: Below method only saves the .code-communityrc file. Need
+    // // to commit all changes. (See https://github.com/mheap/octokit-commit-multiple-files)
+    // if (shouldProceed) {
+    //   // Load any files that we should review for updates
+    //   await initializeFiles()
+    //   await processFiles()
+    //   await commitContribution()
+    // }
 });
 /**
  * Loads an existing .code-communityrc from the repo or
@@ -559,7 +560,7 @@ const initializeRC = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const getRCFileResult = yield getFile('.code-communityrc');
         const fileData = getRCFileResult.data;
-        const parsedContent = atob(fileData.content.replace('/\n/g', ''));
+        const parsedContent = atob_lite_1.default(fileData.content.replace(/[\r\n]+/gm, ''));
         console.log(parsedContent);
         contribRC = JSON.parse(parsedContent);
         core.info('Initialized .code-communityrc file successfully');
@@ -584,7 +585,7 @@ const initializeFiles = () => __awaiter(void 0, void 0, void 0, function* () {
     for (let f = 0; f < inputFiles.length; f++) {
         try {
             const getFileResult = yield getFile(inputFiles[f]);
-            const fileContent = JSON.parse(atob(getFileResult.data.content));
+            const fileContent = JSON.parse(atob_lite_1.default(getFileResult.data.content));
             filesToUpdate.push({
                 name: inputFiles[f],
                 content: fileContent
