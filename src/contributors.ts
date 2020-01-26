@@ -62,10 +62,9 @@ export const addContributor = async (contributorToAdd: IContributor) => {
 const initializeRC = async () => {
   try {
     const getRCFileResult = await getFile('.code-communityrc')
-    console.dir(getRCFileResult.data)
-    contribRC = JSON.parse(
-      atob((getRCFileResult.data as IGitHubGetContentResponse).content)
-    )
+    const fileData: IGitHubGetContentResponse = getRCFileResult.data as IGitHubGetContentResponse
+    console.log(fileData.content)
+    contribRC = JSON.parse(atob(fileData.content))
     core.info('Initialized .code-communityrc file successfully')
   } catch (error) {
     // If we've got an error there is no .code-communityrc file

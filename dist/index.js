@@ -558,8 +558,9 @@ exports.addContributor = (contributorToAdd) => __awaiter(void 0, void 0, void 0,
 const initializeRC = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const getRCFileResult = yield getFile('.code-communityrc');
-        console.dir(getRCFileResult.data);
-        contribRC = JSON.parse(atob(getRCFileResult.data.content));
+        const fileData = getRCFileResult.data;
+        console.log(fileData.content);
+        contribRC = JSON.parse(atob(fileData.content));
         core.info('Initialized .code-communityrc file successfully');
     }
     catch (error) {
