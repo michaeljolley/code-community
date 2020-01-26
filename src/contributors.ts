@@ -63,8 +63,9 @@ const initializeRC = async () => {
   try {
     const getRCFileResult = await getFile('.code-communityrc')
     const fileData: IGitHubGetContentResponse = getRCFileResult.data as IGitHubGetContentResponse
-    console.log(fileData.content)
-    contribRC = JSON.parse(atob(fileData.content))
+    const parsedContent: string = atob(fileData.content)
+    console.log(parsedContent)
+    contribRC = JSON.parse(parsedContent)
     core.info('Initialized .code-communityrc file successfully')
   } catch (error) {
     // If we've got an error there is no .code-communityrc file
