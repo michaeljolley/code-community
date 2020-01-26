@@ -23,10 +23,7 @@ const markup_table_start =
   '<!-- CODE-COMMUNITY-LIST:START - Do not remove or modify this section -->'
 const markup_table_end = '<!-- CODE-COMMUNITY-LIST:END -->'
 
-const inputFiles: string[] =
-  core.getInput('files') !== undefined
-    ? core.getInput('files').split(',')
-    : ['README.md']
+let inputFiles: string[] = ['README.md']
 
 // github.GitHub.plugin(require('octokit-commit-multiple-files'))
 const octokit: github.GitHub = new github.GitHub(githubToken)
@@ -80,6 +77,11 @@ const initializeRC = async () => {
  * and its content to the filesToUpdate array.
  */
 const initializeFiles = async () => {
+  const filesProvided = core.getInput('files').split(',')
+  if (filesProvided.length) {
+    inputFiles = filesProvided
+  }
+
   console.dir(inputFiles)
 
   for (let f = 0; f < inputFiles.length; f++) {

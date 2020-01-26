@@ -530,9 +530,7 @@ const markup_badge_start = '<!-- CODE-COMMUNITY-BADGE:START - Do not remove or m
 const markup_badge_end = '<!-- CODE-COMMUNITY-BADGE:END -->';
 const markup_table_start = '<!-- CODE-COMMUNITY-LIST:START - Do not remove or modify this section -->';
 const markup_table_end = '<!-- CODE-COMMUNITY-LIST:END -->';
-const inputFiles = core.getInput('files') !== undefined
-    ? core.getInput('files').split(',')
-    : ['README.md'];
+let inputFiles = ['README.md'];
 // github.GitHub.plugin(require('octokit-commit-multiple-files'))
 const octokit = new github.GitHub(githubToken);
 let contribRC = IContributorRC_1.defaultRC;
@@ -573,6 +571,10 @@ const initializeRC = () => __awaiter(void 0, void 0, void 0, function* () {
  * and its content to the filesToUpdate array.
  */
 const initializeFiles = () => __awaiter(void 0, void 0, void 0, function* () {
+    const filesProvided = core.getInput('files').split(',');
+    if (filesProvided.length) {
+        inputFiles = filesProvided;
+    }
     console.dir(inputFiles);
     for (let f = 0; f < inputFiles.length; f++) {
         try {
