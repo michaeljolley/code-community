@@ -80,6 +80,8 @@ const initializeRC = async () => {
  * and its content to the filesToUpdate array.
  */
 const initializeFiles = async () => {
+  console.dir(inputFiles)
+
   for (let f = 0; f < inputFiles.length; f++) {
     try {
       const getFileResult = await getFile(inputFiles[f])
@@ -149,8 +151,6 @@ const updateRC = (): boolean => {
  * contributor table and badge
  */
 const processFiles = async () => {
-  console.dir(filesToUpdate)
-
   for (let i = 0; i < filesToUpdate.length; i++) {
     let fileToUpdate: IFile = filesToUpdate[i]
 
@@ -279,7 +279,7 @@ const commitContribution = async () => {
     '.code-communityrc',
     JSON.stringify(contribRC),
     `Adding contributions for ${contributor.login}`,
-    'code-community' // TODO: Should not be committed to master branch
+    'master' // TODO: Should not be committed to master branch
   )
   if (initResult.status !== 201) {
     console.error(

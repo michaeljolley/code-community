@@ -573,6 +573,7 @@ const initializeRC = () => __awaiter(void 0, void 0, void 0, function* () {
  * and its content to the filesToUpdate array.
  */
 const initializeFiles = () => __awaiter(void 0, void 0, void 0, function* () {
+    console.dir(inputFiles);
     for (let f = 0; f < inputFiles.length; f++) {
         try {
             const getFileResult = yield getFile(inputFiles[f]);
@@ -626,7 +627,6 @@ const updateRC = () => {
  * contributor table and badge
  */
 const processFiles = () => __awaiter(void 0, void 0, void 0, function* () {
-    console.dir(filesToUpdate);
     for (let i = 0; i < filesToUpdate.length; i++) {
         let fileToUpdate = filesToUpdate[i];
         const badgeStart = fileToUpdate.content.indexOf(markup_badge_start);
@@ -710,7 +710,7 @@ const addContribution = (contrib, contribution) => {
  * Commits all changes to repo
  */
 const commitContribution = () => __awaiter(void 0, void 0, void 0, function* () {
-    const initResult = yield createOrUpdateFile('.code-communityrc', JSON.stringify(contribRC), `Adding contributions for ${contributor.login}`, 'code-community' // TODO: Should not be committed to master branch
+    const initResult = yield createOrUpdateFile('.code-communityrc', JSON.stringify(contribRC), `Adding contributions for ${contributor.login}`, 'master' // TODO: Should not be committed to master branch
     );
     if (initResult.status !== 201) {
         console.error(`Error initializing repo: ${initResult.status} \n${JSON.stringify(initResult.headers)}`);
