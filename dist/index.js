@@ -537,7 +537,6 @@ let contribRC = IContributorRC_1.defaultRC;
 let contributor;
 const filesToUpdate = [];
 exports.addContributor = (contributorToAdd) => __awaiter(void 0, void 0, void 0, function* () {
-    console.dir(inputFiles);
     contributor = contributorToAdd;
     // Ensure that the repo has its .code-communityrc file initialized
     yield initializeRC();
@@ -573,14 +572,12 @@ const initializeRC = () => __awaiter(void 0, void 0, void 0, function* () {
  */
 const initializeFiles = () => __awaiter(void 0, void 0, void 0, function* () {
     const filesProvided = core.getInput('files');
-    console.log(filesProvided);
     if (filesProvided && filesProvided.length) {
         inputFiles = filesProvided.split(',');
     }
     else {
         inputFiles.push('README.md');
     }
-    console.dir(inputFiles);
     for (let f = 0; f < inputFiles.length; f++) {
         try {
             const getFileResult = yield getFile(inputFiles[f]);
@@ -729,6 +726,11 @@ const commitContribution = () => __awaiter(void 0, void 0, void 0, function* () 
  */
 const getFile = (path) => __awaiter(void 0, void 0, void 0, function* () {
     core.info(`getFile: ${path}`);
+    console.dir({
+        owner,
+        repo,
+        path
+    });
     return yield octokit.repos.getContents({
         owner,
         repo,

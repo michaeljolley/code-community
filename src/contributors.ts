@@ -34,8 +34,6 @@ let contributor: IContributor
 const filesToUpdate: IFile[] = []
 
 export const addContributor = async (contributorToAdd: IContributor) => {
-  console.dir(inputFiles)
-
   contributor = contributorToAdd
 
   // Ensure that the repo has its .code-communityrc file initialized
@@ -81,15 +79,11 @@ const initializeRC = async () => {
 const initializeFiles = async () => {
   const filesProvided = core.getInput('files')
 
-  console.log(filesProvided)
-
   if (filesProvided && filesProvided.length) {
     inputFiles = filesProvided.split(',')
   } else {
     inputFiles.push('README.md')
   }
-
-  console.dir(inputFiles)
 
   for (let f = 0; f < inputFiles.length; f++) {
     try {
@@ -307,6 +301,12 @@ const getFile = async (
   path: string
 ): Promise<Octokit.Response<Octokit.ReposGetContentsResponse>> => {
   core.info(`getFile: ${path}`)
+
+  console.dir({
+    owner,
+    repo,
+    path
+  })
 
   return await octokit.repos.getContents({
     owner,
