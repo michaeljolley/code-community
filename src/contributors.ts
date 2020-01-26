@@ -62,6 +62,7 @@ export const addContributor = async (contributorToAdd: IContributor) => {
 const initializeRC = async () => {
   try {
     const getRCFileResult = await getFile('.code-communityrc')
+    console.dir(getRCFileResult.data)
     contribRC = JSON.parse(
       atob((getRCFileResult.data as IGitHubGetContentResponse).content)
     )
@@ -300,14 +301,6 @@ const commitContribution = async () => {
 const getFile = async (
   path: string
 ): Promise<Octokit.Response<Octokit.ReposGetContentsResponse>> => {
-  core.info(`getFile: ${path}`)
-
-  console.dir({
-    owner,
-    repo,
-    path
-  })
-
   return await octokit.repos.getContents({
     owner,
     repo,

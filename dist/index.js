@@ -558,6 +558,7 @@ exports.addContributor = (contributorToAdd) => __awaiter(void 0, void 0, void 0,
 const initializeRC = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const getRCFileResult = yield getFile('.code-communityrc');
+        console.dir(getRCFileResult.data);
         contribRC = JSON.parse(atob(getRCFileResult.data.content));
         core.info('Initialized .code-communityrc file successfully');
     }
@@ -725,12 +726,6 @@ const commitContribution = () => __awaiter(void 0, void 0, void 0, function* () 
  * @param path Path, including filename, relative to the root of the repo
  */
 const getFile = (path) => __awaiter(void 0, void 0, void 0, function* () {
-    core.info(`getFile: ${path}`);
-    console.dir({
-        owner,
-        repo,
-        path
-    });
     return yield octokit.repos.getContents({
         owner,
         repo,
