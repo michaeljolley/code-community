@@ -541,16 +541,16 @@ exports.addContributor = (contributorToAdd) => __awaiter(void 0, void 0, void 0,
     contributor = contributorToAdd;
     // Ensure that the repo has its .code-communityrc file initialized
     yield initializeRC();
-    // const shouldProceed = updateRC()
-    // // TODO: Update files with contributions
-    // // TODO: Below method only saves the .code-communityrc file. Need
-    // // to commit all changes. (See https://github.com/mheap/octokit-commit-multiple-files)
-    // if (shouldProceed) {
-    //   // Load any files that we should review for updates
-    //   await initializeFiles()
-    //   await processFiles()
-    //   await commitContribution()
-    // }
+    const shouldProceed = updateRC();
+    // TODO: Update files with contributions
+    // TODO: Below method only saves the .code-communityrc file. Need
+    // to commit all changes. (See https://github.com/mheap/octokit-commit-multiple-files)
+    if (shouldProceed) {
+        // Load any files that we should review for updates
+        yield initializeFiles();
+        yield processFiles();
+        yield commitContribution();
+    }
 });
 /**
  * Loads an existing .code-communityrc from the repo or
@@ -560,14 +560,12 @@ const initializeRC = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const getRCFileResult = yield getFile('.code-communityrc');
         const fileData = getRCFileResult.data;
-        const parsedContent = atob_lite_1.default(fileData.content.replace(/[\r\n]+/gm, ''));
-        console.log(parsedContent);
-        contribRC = JSON.parse(parsedContent);
+        contribRC = JSON.parse(atob_lite_1.default(fileData.content.replace(/[\r\n]+/gm, '')));
         core.info('Initialized .code-communityrc file successfully');
     }
     catch (error) {
         // If we've got an error there is no .code-communityrc file
-        core.error(error);
+        core.error(`Unable to retrieve input file: .code-communityrc \n ${error}`);
     }
 });
 /**
@@ -585,7 +583,8 @@ const initializeFiles = () => __awaiter(void 0, void 0, void 0, function* () {
     for (let f = 0; f < inputFiles.length; f++) {
         try {
             const getFileResult = yield getFile(inputFiles[f]);
-            const fileContent = JSON.parse(atob_lite_1.default(getFileResult.data.content));
+            const fileData = getFileResult.data;
+            const fileContent = JSON.parse(atob_lite_1.default(fileData.content.replace(/[\r\n]+/gm, '')));
             filesToUpdate.push({
                 name: inputFiles[f],
                 content: fileContent
@@ -593,7 +592,7 @@ const initializeFiles = () => __awaiter(void 0, void 0, void 0, function* () {
             core.info(`Retrieved file to update: ${inputFiles[f]}`);
         }
         catch (error) {
-            core.error(`Unable to retrieve input file: ${inputFiles[f]}`);
+            core.error(`Unable to retrieve input file: ${inputFiles[f]} \n ${error}`);
         }
     }
 });

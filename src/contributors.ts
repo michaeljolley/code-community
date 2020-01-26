@@ -40,20 +40,20 @@ export const addContributor = async (contributorToAdd: IContributor) => {
   // Ensure that the repo has its .code-communityrc file initialized
   await initializeRC()
 
-  // const shouldProceed = updateRC()
+  const shouldProceed = updateRC()
 
-  // // TODO: Update files with contributions
-  // // TODO: Below method only saves the .code-communityrc file. Need
-  // // to commit all changes. (See https://github.com/mheap/octokit-commit-multiple-files)
+  // TODO: Update files with contributions
+  // TODO: Below method only saves the .code-communityrc file. Need
+  // to commit all changes. (See https://github.com/mheap/octokit-commit-multiple-files)
 
-  // if (shouldProceed) {
-  //   // Load any files that we should review for updates
-  //   await initializeFiles()
+  if (shouldProceed) {
+    // Load any files that we should review for updates
+    await initializeFiles()
 
-  //   await processFiles()
+    await processFiles()
 
-  //   await commitContribution()
-  // }
+    await commitContribution()
+  }
 }
 
 /**
@@ -64,15 +64,11 @@ const initializeRC = async () => {
   try {
     const getRCFileResult = await getFile('.code-communityrc')
     const fileData: IGitHubGetContentResponse = getRCFileResult.data as IGitHubGetContentResponse
-    const parsedContent: string = atob(
-      fileData.content.replace(/[\r\n]+/gm, '')
-    )
-    console.log(parsedContent)
-    contribRC = JSON.parse(parsedContent)
+    contribRC = JSON.parse(atob(fileData.content.replace(/[\r\n]+/gm, '')))
     core.info('Initialized .code-communityrc file successfully')
   } catch (error) {
     // If we've got an error there is no .code-communityrc file
-    core.error(error)
+    core.error(`Unable to retrieve input file: .code-communityrc \n ${error}`)
   }
 }
 
@@ -92,8 +88,9 @@ const initializeFiles = async () => {
   for (let f = 0; f < inputFiles.length; f++) {
     try {
       const getFileResult = await getFile(inputFiles[f])
+      const fileData: IGitHubGetContentResponse = getFileResult.data as IGitHubGetContentResponse
       const fileContent = JSON.parse(
-        atob((getFileResult.data as IGitHubGetContentResponse).content)
+        atob(fileData.content.replace(/[\r\n]+/gm, ''))
       )
 
       filesToUpdate.push({
@@ -102,7 +99,7 @@ const initializeFiles = async () => {
       })
       core.info(`Retrieved file to update: ${inputFiles[f]}`)
     } catch (error) {
-      core.error(`Unable to retrieve input file: ${inputFiles[f]}`)
+      core.error(`Unable to retrieve input file: ${inputFiles[f]} \n ${error}`)
     }
   }
 }
