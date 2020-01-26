@@ -63,7 +63,7 @@ const initializeRC = async () => {
   try {
     const getRCFileResult = await getFile('.code-communityrc')
     const fileData: IGitHubGetContentResponse = getRCFileResult.data as IGitHubGetContentResponse
-    const parsedContent: string = atob(fileData.content.replace('\n', ''))
+    const parsedContent: string = atob(fileData.content.replace('/\n/g', ''))
     console.log(parsedContent)
     contribRC = JSON.parse(parsedContent)
     core.info('Initialized .code-communityrc file successfully')

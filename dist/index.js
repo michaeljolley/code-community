@@ -559,7 +559,7 @@ const initializeRC = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const getRCFileResult = yield getFile('.code-communityrc');
         const fileData = getRCFileResult.data;
-        const parsedContent = atob(fileData.content.replace('\n', ''));
+        const parsedContent = atob(fileData.content.replace('/\n/g', ''));
         console.log(parsedContent);
         contribRC = JSON.parse(parsedContent);
         core.info('Initialized .code-communityrc file successfully');
