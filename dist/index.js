@@ -665,8 +665,9 @@ let contributorTable = '';
 const buildContributorContent = () => {
     contributorTable = '<table>\n';
     let currentContrib = 0;
-    while (currentContrib < contribRC.contributors.length) { }
-    currentContrib = buildContributorRow(currentContrib);
+    while (currentContrib < contribRC.contributors.length) {
+        currentContrib = buildContributorRow(currentContrib);
+    }
     contributorTable = contributorTable + '</table>\n';
     return contributorTable;
 };
