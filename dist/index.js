@@ -566,7 +566,7 @@ const initializeRC = () => __awaiter(void 0, void 0, void 0, function* () {
     }
     catch (error) {
         // If we've got an error there is no .code-communityrc file
-        core.info('No .code-communityrc file identified within the repository.');
+        core.error(error);
     }
 });
 /**

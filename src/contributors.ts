@@ -69,7 +69,7 @@ const initializeRC = async () => {
     core.info('Initialized .code-communityrc file successfully')
   } catch (error) {
     // If we've got an error there is no .code-communityrc file
-    core.info('No .code-communityrc file identified within the repository.')
+    core.error(error)
   }
 }
 
