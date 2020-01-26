@@ -521,14 +521,18 @@ const github = __importStar(__webpack_require__(469));
 const btoa_lite_1 = __importDefault(__webpack_require__(675));
 const IContributorRC_1 = __webpack_require__(419);
 const githubToken = core.getInput('githubToken');
-const contributorsPerRow = (core.getInput('contributorsPerRow') === undefined ? 7 : parseInt(core.getInput('contributorsPerRow')));
+const contributorsPerRow = core.getInput('contributorsPerRow') === undefined
+    ? 7
+    : parseInt(core.getInput('contributorsPerRow'));
 const owner = github.context.repo.owner;
 const repo = github.context.repo.repo;
 const markup_badge_start = '<!-- CODE-COMMUNITY-BADGE:START - Do not remove or modify this section -->';
 const markup_badge_end = '<!-- CODE-COMMUNITY-BADGE:END -->';
 const markup_table_start = '<!-- CODE-COMMUNITY-LIST:START - Do not remove or modify this section -->';
 const markup_table_end = '<!-- CODE-COMMUNITY-LIST:END -->';
-const inputFiles = core.getInput('files').split(',') || ['README.md'];
+const inputFiles = core.getInput('files') !== undefined
+    ? core.getInput('files').split(',')
+    : ['README.md'];
 // github.GitHub.plugin(require('octokit-commit-multiple-files'))
 const octokit = new github.GitHub(githubToken);
 let contribRC = IContributorRC_1.defaultRC;
@@ -622,20 +626,18 @@ const updateRC = () => {
  * contributor table and badge
  */
 const processFiles = () => __awaiter(void 0, void 0, void 0, function* () {
+    console.dir(filesToUpdate);
     for (let i = 0; i < filesToUpdate.length; i++) {
         let fileToUpdate = filesToUpdate[i];
         const badgeStart = fileToUpdate.content.indexOf(markup_badge_start);
         const badgeEnd = fileToUpdate.content.indexOf(markup_badge_end);
-        // Look through content for the badge markup and 
+        // Look through content for the badge markup and
         // if found, update
         const badgeMarkup = `${markup_badge_start}\n[![All Contributors](https://img.shields.io/badge/all_contributors-${contribRC.contributors.length}-orange.svg?style=flat-square)](#contributors)${markup_badge_end}`;
-        if (badgeStart === -1 &&
-            badgeEnd === -1) {
+        if (badgeStart === -1 && badgeEnd === -1) {
             fileToUpdate.content = `${badgeMarkup}\n${fileToUpdate.content}`;
         }
-        else if (badgeStart >= 0 &&
-            badgeEnd >= 0 &&
-            badgeEnd > badgeStart) {
+        else if (badgeStart >= 0 && badgeEnd >= 0 && badgeEnd > badgeStart) {
             fileToUpdate.content = `${fileToUpdate.content.slice(0, badgeStart - 1)}\n${badgeMarkup}\n${fileToUpdate.content.slice(badgeEnd + markup_badge_end.length)}`;
         }
         const tableStart = fileToUpdate.content.indexOf(markup_table_start);
@@ -643,13 +645,10 @@ const processFiles = () => __awaiter(void 0, void 0, void 0, function* () {
         let contributorContent = buildContributorContent();
         // Look through content for the table markup and
         // if found, update
-        if (tableStart === -1 &&
-            tableEnd === -1) {
+        if (tableStart === -1 && tableEnd === -1) {
             fileToUpdate.content = `${fileToUpdate.content}\n${contributorContent}`;
         }
-        else if (tableStart >= 0 &&
-            tableEnd >= 0 &&
-            tableEnd > tableStart) {
+        else if (tableStart >= 0 && tableEnd >= 0 && tableEnd > tableStart) {
             fileToUpdate.content = `${fileToUpdate.content.slice(0, tableStart - 1)}\n${contributorContent}\n${fileToUpdate.content.slice(tableEnd + markup_table_end.length)}`;
         }
         yield createOrUpdateFile(fileToUpdate.name, fileToUpdate.content, `Updating contributions on ${fileToUpdate.name}`, 'code-community');
@@ -659,8 +658,7 @@ let contributorTable = '';
 const buildContributorContent = () => {
     contributorTable = '<table>\n';
     let currentContrib = 0;
-    while (currentContrib < contribRC.contributors.length) {
-    }
+    while (currentContrib < contribRC.contributors.length) { }
     currentContrib = buildContributorRow(currentContrib);
     contributorTable = contributorTable + '</table>\n';
     return contributorTable;
@@ -671,12 +669,16 @@ const buildContributorRow = (contrib) => {
     while (index < contributorsPerRow &&
         contrib < contribRC.contributors.length) {
         const currentContrib = contribRC.contributors[index];
-        contribRow = contribRow + `<td align="center">
+        contribRow =
+            contribRow +
+                `<td align="center">
             <a href="https://github.com/${currentContrib.login}">
               <img src="${currentContrib.avatar_url}" width="100px;" alt=""/><br />
               <sub><b>${currentContrib.login}</b></sub></a><br />`;
         for (let c = 0; c < currentContrib.contributions.length; c++) {
-            contribRow = contribRow + addContribution(currentContrib, currentContrib.contributions[c]);
+            contribRow =
+                contribRow +
+                    addContribution(currentContrib, currentContrib.contributions[c]);
         }
         contribRow = contribRow + '</td>';
         index++;
@@ -719,6 +721,7 @@ const commitContribution = () => __awaiter(void 0, void 0, void 0, function* () 
  * @param path Path, including filename, relative to the root of the repo
  */
 const getFile = (path) => __awaiter(void 0, void 0, void 0, function* () {
+    core.info(`getFile: ${path}`);
     return yield octokit.repos.getContents({
         owner,
         repo,
@@ -1935,7 +1938,7 @@ module.exports = require("https");
 /***/ 215:
 /***/ (function(module) {
 
-module.exports = {"_args":[["@octokit/rest@16.37.0","C:\\sources\\code-community"]],"_from":"@octokit/rest@16.37.0","_id":"@octokit/rest@16.37.0","_inBundle":false,"_integrity":"sha512-qLPK9FOCK4iVpn6ghknNuv/gDDxXQG6+JBQvoCwWjQESyis9uemakjzN36nvvp8SCny7JuzHI2RV8ChbV5mYdQ==","_location":"/@octokit/rest","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"@octokit/rest@16.37.0","name":"@octokit/rest","escapedName":"@octokit%2frest","scope":"@octokit","rawSpec":"16.37.0","saveSpec":null,"fetchSpec":"16.37.0"},"_requiredBy":["/@actions/github"],"_resolved":"https://registry.npmjs.org/@octokit/rest/-/rest-16.37.0.tgz","_spec":"16.37.0","_where":"C:\\sources\\code-community","author":{"name":"Gregor Martynus","url":"https://github.com/gr2m"},"bugs":{"url":"https://github.com/octokit/rest.js/issues"},"bundlesize":[{"path":"./dist/octokit-rest.min.js.gz","maxSize":"33 kB"}],"contributors":[{"name":"Mike de Boer","email":"info@mikedeboer.nl"},{"name":"Fabian Jakobs","email":"fabian@c9.io"},{"name":"Joe Gallo","email":"joe@brassafrax.com"},{"name":"Gregor Martynus","url":"https://github.com/gr2m"}],"dependencies":{"@octokit/request":"^5.2.0","@octokit/request-error":"^1.0.2","atob-lite":"^2.0.0","before-after-hook":"^2.0.0","btoa-lite":"^1.0.0","deprecation":"^2.0.0","lodash.get":"^4.4.2","lodash.set":"^4.3.2","lodash.uniq":"^4.5.0","octokit-pagination-methods":"^1.1.0","once":"^1.4.0","universal-user-agent":"^4.0.0"},"description":"GitHub REST API client for Node.js","devDependencies":{"@gimenete/type-writer":"^0.1.3","@octokit/fixtures-server":"^5.0.6","@octokit/graphql":"^4.2.0","@types/node":"^13.1.0","bundlesize":"^0.18.0","chai":"^4.1.2","compression-webpack-plugin":"^3.0.0","cypress":"^3.0.0","glob":"^7.1.2","http-proxy-agent":"^3.0.0","lodash.camelcase":"^4.3.0","lodash.merge":"^4.6.1","lodash.upperfirst":"^4.3.1","mkdirp":"^0.5.1","mocha":"^6.0.0","mustache":"^4.0.0","nock":"^11.3.3","npm-run-all":"^4.1.2","nyc":"^15.0.0","prettier":"^1.14.2","proxy":"^1.0.0","semantic-release":"^16.0.0","sinon":"^8.0.0","sinon-chai":"^3.0.0","sort-keys":"^4.0.0","string-to-arraybuffer":"^1.0.0","string-to-jsdoc-comment":"^1.0.0","typescript":"^3.3.1","webpack":"^4.0.0","webpack-bundle-analyzer":"^3.0.0","webpack-cli":"^3.0.0"},"files":["index.js","index.d.ts","lib","plugins"],"homepage":"https://github.com/octokit/rest.js#readme","keywords":["octokit","github","rest","api-client"],"license":"MIT","name":"@octokit/rest","nyc":{"ignore":["test"]},"publishConfig":{"access":"public"},"release":{"publish":["@semantic-release/npm",{"path":"@semantic-release/github","assets":["dist/*","!dist/*.map.gz"]}]},"repository":{"type":"git","url":"git+https://github.com/octokit/rest.js.git"},"scripts":{"build":"npm-run-all build:*","build:browser":"npm-run-all build:browser:*","build:browser:development":"webpack --mode development --entry . --output-library=Octokit --output=./dist/octokit-rest.js --profile --json > dist/bundle-stats.json","build:browser:production":"webpack --mode production --entry . --plugin=compression-webpack-plugin --output-library=Octokit --output-path=./dist --output-filename=octokit-rest.min.js --devtool source-map","build:ts":"npm run -s update-endpoints:typescript","coverage":"nyc report --reporter=html && open coverage/index.html","generate-bundle-report":"webpack-bundle-analyzer dist/bundle-stats.json --mode=static --no-open --report dist/bundle-report.html","lint":"prettier --check '{lib,plugins,scripts,test}/**/*.{js,json,ts}' 'docs/*.{js,json}' 'docs/src/**/*' index.js README.md package.json","lint:fix":"prettier --write '{lib,plugins,scripts,test}/**/*.{js,json,ts}' 'docs/*.{js,json}' 'docs/src/**/*' index.js README.md package.json","postvalidate:ts":"tsc --noEmit --target es6 test/typescript-validate.ts","prebuild:browser":"mkdirp dist/","pretest":"npm run -s lint","prevalidate:ts":"npm run -s build:ts","start-fixtures-server":"octokit-fixtures-server","test":"nyc mocha test/mocha-node-setup.js \"test/*/**/*-test.js\"","test:browser":"cypress run --browser chrome","update-endpoints":"npm-run-all update-endpoints:*","update-endpoints:code":"node scripts/update-endpoints/code","update-endpoints:fetch-json":"node scripts/update-endpoints/fetch-json","update-endpoints:typescript":"node scripts/update-endpoints/typescript","validate:ts":"tsc --target es6 --noImplicitAny index.d.ts"},"types":"index.d.ts","version":"16.37.0"};
+module.exports = {"_from":"@octokit/rest@^16.15.0","_id":"@octokit/rest@16.37.0","_inBundle":false,"_integrity":"sha512-qLPK9FOCK4iVpn6ghknNuv/gDDxXQG6+JBQvoCwWjQESyis9uemakjzN36nvvp8SCny7JuzHI2RV8ChbV5mYdQ==","_location":"/@octokit/rest","_phantomChildren":{"os-name":"3.1.0"},"_requested":{"type":"range","registry":true,"raw":"@octokit/rest@^16.15.0","name":"@octokit/rest","escapedName":"@octokit%2frest","scope":"@octokit","rawSpec":"^16.15.0","saveSpec":null,"fetchSpec":"^16.15.0"},"_requiredBy":["/actions-toolkit"],"_resolved":"https://registry.npmjs.org/@octokit/rest/-/rest-16.37.0.tgz","_shasum":"e08501c471199cb4942587f2425a7990b34a49eb","_spec":"@octokit/rest@^16.15.0","_where":"D:\\sources\\michaeljolley\\code-community\\node_modules\\actions-toolkit","author":{"name":"Gregor Martynus","url":"https://github.com/gr2m"},"bugs":{"url":"https://github.com/octokit/rest.js/issues"},"bundleDependencies":false,"bundlesize":[{"path":"./dist/octokit-rest.min.js.gz","maxSize":"33 kB"}],"contributors":[{"name":"Mike de Boer","email":"info@mikedeboer.nl"},{"name":"Fabian Jakobs","email":"fabian@c9.io"},{"name":"Joe Gallo","email":"joe@brassafrax.com"},{"name":"Gregor Martynus","url":"https://github.com/gr2m"}],"dependencies":{"@octokit/request":"^5.2.0","@octokit/request-error":"^1.0.2","atob-lite":"^2.0.0","before-after-hook":"^2.0.0","btoa-lite":"^1.0.0","deprecation":"^2.0.0","lodash.get":"^4.4.2","lodash.set":"^4.3.2","lodash.uniq":"^4.5.0","octokit-pagination-methods":"^1.1.0","once":"^1.4.0","universal-user-agent":"^4.0.0"},"deprecated":false,"description":"GitHub REST API client for Node.js","devDependencies":{"@gimenete/type-writer":"^0.1.3","@octokit/fixtures-server":"^5.0.6","@octokit/graphql":"^4.2.0","@types/node":"^13.1.0","bundlesize":"^0.18.0","chai":"^4.1.2","compression-webpack-plugin":"^3.0.0","cypress":"^3.0.0","glob":"^7.1.2","http-proxy-agent":"^3.0.0","lodash.camelcase":"^4.3.0","lodash.merge":"^4.6.1","lodash.upperfirst":"^4.3.1","mkdirp":"^0.5.1","mocha":"^6.0.0","mustache":"^4.0.0","nock":"^11.3.3","npm-run-all":"^4.1.2","nyc":"^15.0.0","prettier":"^1.14.2","proxy":"^1.0.0","semantic-release":"^16.0.0","sinon":"^8.0.0","sinon-chai":"^3.0.0","sort-keys":"^4.0.0","string-to-arraybuffer":"^1.0.0","string-to-jsdoc-comment":"^1.0.0","typescript":"^3.3.1","webpack":"^4.0.0","webpack-bundle-analyzer":"^3.0.0","webpack-cli":"^3.0.0"},"files":["index.js","index.d.ts","lib","plugins"],"homepage":"https://github.com/octokit/rest.js#readme","keywords":["octokit","github","rest","api-client"],"license":"MIT","name":"@octokit/rest","nyc":{"ignore":["test"]},"publishConfig":{"access":"public"},"release":{"publish":["@semantic-release/npm",{"path":"@semantic-release/github","assets":["dist/*","!dist/*.map.gz"]}]},"repository":{"type":"git","url":"git+https://github.com/octokit/rest.js.git"},"scripts":{"build":"npm-run-all build:*","build:browser":"npm-run-all build:browser:*","build:browser:development":"webpack --mode development --entry . --output-library=Octokit --output=./dist/octokit-rest.js --profile --json > dist/bundle-stats.json","build:browser:production":"webpack --mode production --entry . --plugin=compression-webpack-plugin --output-library=Octokit --output-path=./dist --output-filename=octokit-rest.min.js --devtool source-map","build:ts":"npm run -s update-endpoints:typescript","coverage":"nyc report --reporter=html && open coverage/index.html","generate-bundle-report":"webpack-bundle-analyzer dist/bundle-stats.json --mode=static --no-open --report dist/bundle-report.html","lint":"prettier --check '{lib,plugins,scripts,test}/**/*.{js,json,ts}' 'docs/*.{js,json}' 'docs/src/**/*' index.js README.md package.json","lint:fix":"prettier --write '{lib,plugins,scripts,test}/**/*.{js,json,ts}' 'docs/*.{js,json}' 'docs/src/**/*' index.js README.md package.json","postvalidate:ts":"tsc --noEmit --target es6 test/typescript-validate.ts","prebuild:browser":"mkdirp dist/","pretest":"npm run -s lint","prevalidate:ts":"npm run -s build:ts","start-fixtures-server":"octokit-fixtures-server","test":"nyc mocha test/mocha-node-setup.js \"test/*/**/*-test.js\"","test:browser":"cypress run --browser chrome","update-endpoints":"npm-run-all update-endpoints:*","update-endpoints:code":"node scripts/update-endpoints/code","update-endpoints:fetch-json":"node scripts/update-endpoints/fetch-json","update-endpoints:typescript":"node scripts/update-endpoints/typescript","validate:ts":"tsc --target es6 --noImplicitAny index.d.ts"},"types":"index.d.ts","version":"16.37.0"};
 
 /***/ }),
 
