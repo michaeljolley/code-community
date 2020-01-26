@@ -571,10 +571,10 @@ const initializeRC = () => __awaiter(void 0, void 0, void 0, function* () {
  * and its content to the filesToUpdate array.
  */
 const initializeFiles = () => __awaiter(void 0, void 0, void 0, function* () {
-    const filesProvided = core.getInput('files').split(',');
-    if (filesProvided.length) {
-        inputFiles = filesProvided;
-    }
+    // const filesProvided = core.getInput('files').split(',')
+    // if (filesProvided.length) {
+    //   inputFiles = filesProvided
+    // }
     console.dir(inputFiles);
     for (let f = 0; f < inputFiles.length; f++) {
         try {

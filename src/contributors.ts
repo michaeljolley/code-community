@@ -77,10 +77,10 @@ const initializeRC = async () => {
  * and its content to the filesToUpdate array.
  */
 const initializeFiles = async () => {
-  const filesProvided = core.getInput('files').split(',')
-  if (filesProvided.length) {
-    inputFiles = filesProvided
-  }
+  // const filesProvided = core.getInput('files').split(',')
+  // if (filesProvided.length) {
+  //   inputFiles = filesProvided
+  // }
 
   console.dir(inputFiles)
 
