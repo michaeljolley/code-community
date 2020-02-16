@@ -24,7 +24,8 @@
             "profile": "https://github.com/MichaelJolley",
             "contributions": [
                 "bug",
-                "documentation"
+                "documentation",
+                "enhancement"
             ]
         }
     ]
