@@ -623,11 +623,11 @@ const updateRC = () => {
             core.info(`No new contributions identified for ${contributor.login}`);
             return false;
         }
-        core.info(`Identified new contributions for ${contributor.login}: ${contributor.contributions.join(', ')}`);
+        core.info(`Identified new contributions for ${contributor.login}: ${newContributions.join(', ')}`);
         let filteredContributors = contribRC.contributors.filter(f => f.login != contributor.login);
         contributor.contributions = [
             ...existingContributor.contributions,
-            ...contributor.contributions
+            ...newContributions
         ];
         filteredContributors.push(contributor);
         contribRC.contributors = filteredContributors;

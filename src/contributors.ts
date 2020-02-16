@@ -144,7 +144,7 @@ const updateRC = (): boolean => {
     core.info(
       `Identified new contributions for ${
         contributor.login
-      }: ${contributor.contributions.join(', ')}`
+      }: ${newContributions.join(', ')}`
     )
 
     let filteredContributors = contribRC.contributors.filter(
@@ -153,7 +153,7 @@ const updateRC = (): boolean => {
 
     contributor.contributions = [
       ...existingContributor.contributions,
-      ...contributor.contributions
+      ...newContributions
     ]
     filteredContributors.push(contributor)
     contribRC.contributors = filteredContributors
