@@ -532,6 +532,11 @@ const markup_badge_end = '<!-- CODE-COMMUNITY-BADGE:END -->';
 const markup_table_start = '<!-- CODE-COMMUNITY-LIST:START - Do not remove or modify this section -->';
 const markup_table_end = '<!-- CODE-COMMUNITY-LIST:END -->';
 let inputFiles = [];
+let baseRef;
+let latestCommitSha;
+let treeSha;
+let newTreeSha;
+let contribSha;
 // github.GitHub.plugin(require('octokit-commit-multiple-files'))
 const octokit = new github.GitHub(githubToken);
 let contribRC = IContributorRC_1.defaultRC;
@@ -539,11 +544,12 @@ let contributor;
 const filesToUpdate = [];
 exports.addContributor = (contributorToAdd) => __awaiter(void 0, void 0, void 0, function* () {
     contributor = contributorToAdd;
+    contribSha = Math.random()
+        .toString(36)
+        .slice(2);
     // Ensure that the repo has its .code-communityrc file initialized
     yield initializeRC();
     const shouldProceed = updateRC();
-    // TODO: Below method only saves the .code-communityrc file. Need
-    // to commit all changes. (See https://github.com/mheap/octokit-commit-multiple-files)
     if (shouldProceed) {
         // Load any files that we should review for updates
         yield initializeFiles();
@@ -609,6 +615,7 @@ const updateRC = () => {
         const newContributions = contributor.contributions.filter(f => {
             return existingContributor.contributions.indexOf(f) < 0;
         });
+        core.info(JSON.stringify(newContributions));
         // If there were no new contributions, we're done so return false.
         if (newContributions.length === 0) {
             core.info(`No new contributions identified for ${contributor.login}`);
@@ -657,7 +664,6 @@ const processFiles = () => __awaiter(void 0, void 0, void 0, function* () {
         else if (tableStart >= 0 && tableEnd >= 0 && tableEnd > tableStart) {
             fileToUpdate.content = `${fileToUpdate.content.slice(0, tableStart - 1)}\n${contributorContent}\n${fileToUpdate.content.slice(tableEnd + markup_table_end.length)}`;
         }
-        yield createOrUpdateFile(fileToUpdate.name, fileToUpdate.content, `Updating contributions on ${fileToUpdate.name}`, 'code-community');
     }
 });
 let contributorTable = '';
@@ -717,11 +723,29 @@ const addContribution = (contrib, contribution) => {
  * Commits all changes to repo
  */
 const commitContribution = () => __awaiter(void 0, void 0, void 0, function* () {
-    const initResult = yield createOrUpdateFile('.code-communityrc', JSON.stringify(contribRC), `Adding contributions for ${contributor.login}`, 'master' // TODO: Should not be committed to master branch
-    );
-    if (initResult.status !== 201) {
-        console.error(`Error initializing repo: ${initResult.status} \n${JSON.stringify(initResult.headers)}`);
+    // 1. Create a new branch for this process
+    // 2. Commit each file to the new branch
+    // 3. Create a new PR from this new branch to master
+    yield getBaseBranch();
+    yield getLastCommitSha();
+    let tree = [];
+    for (let f = 0; f < filesToUpdate.length; f++) {
+        tree.push({
+            content: filesToUpdate[f].content,
+            mode: '100644',
+            path: filesToUpdate[f].name
+        });
     }
+    let response = yield octokit.git.createTree({
+        owner,
+        repo,
+        base_tree: treeSha,
+        tree
+    });
+    newTreeSha = response.data.sha;
+    yield createCommit();
+    yield createRef();
+    yield createPullRequest();
 });
 /**
  * Retrieves the content for a file within the repo
@@ -749,6 +773,48 @@ const createOrUpdateFile = (path, content, message, branch) => __awaiter(void 0,
         branch,
         message,
         content: btoa_lite_1.default(content)
+    });
+});
+const getBaseBranch = () => __awaiter(void 0, void 0, void 0, function* () {
+    let response = yield octokit.repos.get({ owner, repo });
+    baseRef = response.data.default_branch;
+});
+const getLastCommitSha = () => __awaiter(void 0, void 0, void 0, function* () {
+    let response = yield octokit.repos.listCommits({
+        owner,
+        repo,
+        sha: baseRef,
+        per_page: 1
+    });
+    latestCommitSha = response.data[0].sha;
+    treeSha = response.data[0].commit.tree.sha;
+});
+const createCommit = () => __awaiter(void 0, void 0, void 0, function* () {
+    let response = yield octokit.git.createCommit({
+        owner,
+        repo,
+        message: `Updating contributions for ${contributor.login}`,
+        tree: newTreeSha,
+        parents: [latestCommitSha]
+    });
+    latestCommitSha = response.data.sha;
+});
+const createRef = () => __awaiter(void 0, void 0, void 0, function* () {
+    let response = yield octokit.git.createRef({
+        owner,
+        repo,
+        ref: `refs/heads/${contribSha}`,
+        sha: latestCommitSha
+    });
+});
+const createPullRequest = () => __awaiter(void 0, void 0, void 0, function* () {
+    yield octokit.pulls.create({
+        owner,
+        repo,
+        title: `Updating contributions for ${contributor.login}`,
+        body: `Updating contributions for ${contributor.login}`,
+        head: contribSha,
+        base: baseRef
     });
 });
 
@@ -7983,7 +8049,6 @@ exports.processIssue = (payload) => __awaiter(void 0, void 0, void 0, function* 
     }
     if (actions.find(f => f === payload.action)) {
         core.info(`Processing workflow for issue: ${(_a = payload.issue) === null || _a === void 0 ? void 0 : _a.number}`);
-        core.info(JSON.stringify(payload));
         const labels = (_b = payload.issue) === null || _b === void 0 ? void 0 : _b.labels;
         const user = (_c = payload.issue) === null || _c === void 0 ? void 0 : _c.user;
         let contributor = {

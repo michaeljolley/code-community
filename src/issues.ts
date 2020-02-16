@@ -16,8 +16,6 @@ export const processIssue = async (payload: WebhookPayload) => {
   if (actions.find(f => f === payload.action)) {
     core.info(`Processing workflow for issue: ${payload.issue?.number}`)
 
-    core.info(JSON.stringify(payload))
-
     const labels = payload.issue?.labels as ILabel[]
     const user = payload.issue?.user as IUser
 

@@ -25,6 +25,11 @@ const markup_table_start =
 const markup_table_end = '<!-- CODE-COMMUNITY-LIST:END -->'
 
 let inputFiles: string[] = []
+let baseRef: string
+let latestCommitSha: string
+let treeSha: string
+let newTreeSha: string
+let contribSha: string
 
 // github.GitHub.plugin(require('octokit-commit-multiple-files'))
 const octokit: github.GitHub = new github.GitHub(githubToken)
@@ -37,13 +42,14 @@ const filesToUpdate: IFile[] = []
 export const addContributor = async (contributorToAdd: IContributor) => {
   contributor = contributorToAdd
 
+  contribSha = Math.random()
+    .toString(36)
+    .slice(2)
+
   // Ensure that the repo has its .code-communityrc file initialized
   await initializeRC()
 
   const shouldProceed = updateRC()
-
-  // TODO: Below method only saves the .code-communityrc file. Need
-  // to commit all changes. (See https://github.com/mheap/octokit-commit-multiple-files)
 
   if (shouldProceed) {
     // Load any files that we should review for updates
@@ -119,6 +125,8 @@ const updateRC = (): boolean => {
       return existingContributor!.contributions.indexOf(f) < 0
     })
 
+    core.info(JSON.stringify(newContributions))
+
     // If there were no new contributions, we're done so return false.
     if (newContributions.length === 0) {
       core.info(`No new contributions identified for ${contributor.login}`)
@@ -190,13 +198,6 @@ const processFiles = async () => {
         tableEnd + markup_table_end.length
       )}`
     }
-
-    await createOrUpdateFile(
-      fileToUpdate.name,
-      fileToUpdate.content,
-      `Updating contributions on ${fileToUpdate.name}`,
-      'code-community'
-    )
   }
 }
 
@@ -277,19 +278,35 @@ const addContribution = (
  * Commits all changes to repo
  */
 const commitContribution = async () => {
-  const initResult = await createOrUpdateFile(
-    '.code-communityrc',
-    JSON.stringify(contribRC),
-    `Adding contributions for ${contributor.login}`,
-    'master' // TODO: Should not be committed to master branch
-  )
-  if (initResult.status !== 201) {
-    console.error(
-      `Error initializing repo: ${initResult.status} \n${JSON.stringify(
-        initResult.headers
-      )}`
-    )
+  // 1. Create a new branch for this process
+  // 2. Commit each file to the new branch
+  // 3. Create a new PR from this new branch to master
+
+  await getBaseBranch()
+  await getLastCommitSha()
+
+  let tree: Octokit.GitCreateTreeParamsTree[] = []
+
+  for (let f = 0; f < filesToUpdate.length; f++) {
+    tree.push({
+      content: filesToUpdate[f].content,
+      mode: '100644',
+      path: filesToUpdate[f].name
+    })
   }
+
+  let response = await octokit.git.createTree({
+    owner,
+    repo,
+    base_tree: treeSha,
+    tree
+  })
+
+  newTreeSha = response.data.sha
+
+  await createCommit()
+  await createRef()
+  await createPullRequest()
 }
 
 /**
@@ -326,5 +343,52 @@ const createOrUpdateFile = async (
     branch,
     message,
     content: btoa(content)
+  })
+}
+
+const getBaseBranch = async (): Promise<void> => {
+  let response = await octokit.repos.get({owner, repo})
+  baseRef = response.data.default_branch
+}
+
+const getLastCommitSha = async (): Promise<void> => {
+  let response = await octokit.repos.listCommits({
+    owner,
+    repo,
+    sha: baseRef,
+    per_page: 1
+  })
+  latestCommitSha = response.data[0].sha
+  treeSha = response.data[0].commit.tree.sha
+}
+
+const createCommit = async (): Promise<void> => {
+  let response = await octokit.git.createCommit({
+    owner,
+    repo,
+    message: `Updating contributions for ${contributor.login}`,
+    tree: newTreeSha,
+    parents: [latestCommitSha]
+  })
+  latestCommitSha = response.data.sha
+}
+
+const createRef = async (): Promise<void> => {
+  let response = await octokit.git.createRef({
+    owner,
+    repo,
+    ref: `refs/heads/${contribSha}`,
+    sha: latestCommitSha
+  })
+}
+
+const createPullRequest = async (): Promise<void> => {
+  await octokit.pulls.create({
+    owner,
+    repo,
+    title: `Updating contributions for ${contributor.login}`,
+    body: `Updating contributions for ${contributor.login}`,
+    head: contribSha,
+    base: baseRef
   })
 }
