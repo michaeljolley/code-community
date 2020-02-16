@@ -176,7 +176,7 @@ const processFiles = async () => {
 
     // Look through content for the badge markup and
     // if found, update
-    const badgeMarkup: string = `${markup_badge_start}\n[![All Contributors](https://img.shields.io/badge/code_community-${contribRC.contributors.length}-orange.svg?style=flat-square)](#contributors)${markup_badge_end}`
+    const badgeMarkup: string = `${markup_badge_start}\n[![All Contributors](https://img.shields.io/badge/code_community-${contribRC.contributors.length}-orange.svg?style=flat-square)](#contributors)\n${markup_badge_end}`
 
     if (badgeStart === -1 && badgeEnd === -1) {
       fileToUpdate.content = `${badgeMarkup}\n${fileToUpdate.content}`

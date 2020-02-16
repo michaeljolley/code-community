@@ -394,6 +394,52 @@ module.exports._enoent = enoent;
 
 /***/ }),
 
+/***/ 27:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const core = __importStar(__webpack_require__(470));
+const actions = ['opened', 'updated'];
+exports.processPullRequest = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    if (!payload.pull_request) {
+        core.setFailed('Pull Request was not provided.');
+    }
+    if (actions.find(f => f === payload.action)) {
+        core.info(`Processing workflow for pull request: ${(_a = payload.pull_request) === null || _a === void 0 ? void 0 : _a.number}`);
+        // const labels = payload.issue?.labels as ILabel[]
+        // const user = payload.issue?.user as IUser
+        // let contributor: IContributor = {
+        //   avatar_url: user.avatar_url || '',
+        //   login: user.login || '',
+        //   profile: user.html_url || `https://github.com/${user.login}`,
+        //   contributions: labels.map(m => m.name)
+        // }
+        // await contributors.addContributor(contributor)
+    }
+});
+
+
+/***/ }),
+
 /***/ 39:
 /***/ (function(module) {
 
@@ -648,7 +694,7 @@ const processFiles = () => __awaiter(void 0, void 0, void 0, function* () {
         const badgeEnd = fileToUpdate.content.indexOf(markup_badge_end);
         // Look through content for the badge markup and
         // if found, update
-        const badgeMarkup = `${markup_badge_start}\n[![All Contributors](https://img.shields.io/badge/code_community-${contribRC.contributors.length}-orange.svg?style=flat-square)](#contributors)${markup_badge_end}`;
+        const badgeMarkup = `${markup_badge_start}\n[![All Contributors](https://img.shields.io/badge/code_community-${contribRC.contributors.length}-orange.svg?style=flat-square)](#contributors)\n${markup_badge_end}`;
         if (badgeStart === -1 && badgeEnd === -1) {
             fileToUpdate.content = `${badgeMarkup}\n${fileToUpdate.content}`;
         }
@@ -5020,13 +5066,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const github = __importStar(__webpack_require__(469));
 //import * as io from '@actions/io'
 const issues = __importStar(__webpack_require__(689));
+const pullrequests = __importStar(__webpack_require__(27));
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     switch (github.context.eventName) {
         case 'issues':
             issues.processIssue(github.context.payload);
             break;
         case 'pull-requests':
-            // pullrequest.processPullRequest(github.context.payload);
+            pullrequests.processPullRequest(github.context.payload);
             break;
         default:
             break;

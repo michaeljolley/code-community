@@ -1,1 +1,31 @@
-{"contributors":[{"avatar_url":"https://avatars2.githubusercontent.com/u/1228996?v=4","login":"MichaelJolley","profile":"https://github.com/MichaelJolley","contributions":["bug","documentation"]}]}
+{
+    "rules": [
+        {
+            "name": "api",
+            "contributions": [
+                {
+                    "label": "test",
+                    "conditions": [
+                        "condition",
+                        "condition2"
+                    ]
+                }
+            ],
+            "files": [
+                "README.md",
+                "/src/api/README.md"
+            ]
+        }
+    ],
+    "contributors": [
+        {
+            "avatar_url": "https://avatars2.githubusercontent.com/u/1228996?v=4",
+            "login": "MichaelJolley",
+            "profile": "https://github.com/MichaelJolley",
+            "contributions": [
+                "bug",
+                "documentation"
+            ]
+        }
+    ]
+}
