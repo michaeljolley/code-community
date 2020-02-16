@@ -542,7 +542,6 @@ exports.addContributor = (contributorToAdd) => __awaiter(void 0, void 0, void 0,
     // Ensure that the repo has its .code-communityrc file initialized
     yield initializeRC();
     const shouldProceed = updateRC();
-    // TODO: Update files with contributions
     // TODO: Below method only saves the .code-communityrc file. Need
     // to commit all changes. (See https://github.com/mheap/octokit-commit-multiple-files)
     if (shouldProceed) {
@@ -607,8 +606,8 @@ const updateRC = () => {
     // if the contributor exists, see if they have any new
     // contribution types.  If so, merge and update.
     if (existingContributor) {
-        const newContributions = existingContributor.contributions.filter(f => {
-            return contributor.contributions.indexOf(f) < 0;
+        const newContributions = contributor.contributions.filter(f => {
+            return existingContributor.contributions.indexOf(f) < 0;
         });
         // If there were no new contributions, we're done so return false.
         if (newContributions.length === 0) {
@@ -640,7 +639,7 @@ const processFiles = () => __awaiter(void 0, void 0, void 0, function* () {
         const badgeEnd = fileToUpdate.content.indexOf(markup_badge_end);
         // Look through content for the badge markup and
         // if found, update
-        const badgeMarkup = `${markup_badge_start}\n[![All Contributors](https://img.shields.io/badge/all_contributors-${contribRC.contributors.length}-orange.svg?style=flat-square)](#contributors)${markup_badge_end}`;
+        const badgeMarkup = `${markup_badge_start}\n[![All Contributors](https://img.shields.io/badge/code_community-${contribRC.contributors.length}-orange.svg?style=flat-square)](#contributors)${markup_badge_end}`;
         if (badgeStart === -1 && badgeEnd === -1) {
             fileToUpdate.content = `${badgeMarkup}\n${fileToUpdate.content}`;
         }
@@ -7984,6 +7983,7 @@ exports.processIssue = (payload) => __awaiter(void 0, void 0, void 0, function* 
     }
     if (actions.find(f => f === payload.action)) {
         core.info(`Processing workflow for issue: ${(_a = payload.issue) === null || _a === void 0 ? void 0 : _a.number}`);
+        core.info(JSON.stringify(payload));
         const labels = (_b = payload.issue) === null || _b === void 0 ? void 0 : _b.labels;
         const user = (_c = payload.issue) === null || _c === void 0 ? void 0 : _c.user;
         let contributor = {

@@ -114,9 +114,9 @@ const updateRC = (): boolean => {
 
   // if the contributor exists, see if they have any new
   // contribution types.  If so, merge and update.
-  if (existingContributor !== undefined) {
+  if (existingContributor) {
     const newContributions = contributor.contributions.filter(f => {
-      return existingContributor.contributions.indexOf(f) < 0
+      return existingContributor!.contributions.indexOf(f) < 0
     })
 
     // If there were no new contributions, we're done so return false.
