@@ -615,7 +615,9 @@ const updateRC = () => {
         const newContributions = contributor.contributions.filter(f => {
             return existingContributor.contributions.indexOf(f) < 0;
         });
-        core.info(JSON.stringify(newContributions));
+        core.info(`contributor.contributions: ${JSON.stringify(contributor.contributions)}`);
+        core.info(`existingContributor.contributions: ${JSON.stringify(existingContributor.contributions)}`);
+        core.info(`newContributions: ${JSON.stringify(newContributions)}`);
         // If there were no new contributions, we're done so return false.
         if (newContributions.length === 0) {
             core.info(`No new contributions identified for ${contributor.login}`);
@@ -674,7 +676,7 @@ const buildContributorContent = () => {
         currentContrib = buildContributorRow(currentContrib);
     }
     contributorTable = contributorTable + '</table>\n';
-    return contributorTable;
+    return `${markup_table_start}\n${contributorTable}\n${markup_table_end}`;
 };
 const buildContributorRow = (contrib) => {
     let contribRow = '<tr>\n';
@@ -723,9 +725,6 @@ const addContribution = (contrib, contribution) => {
  * Commits all changes to repo
  */
 const commitContribution = () => __awaiter(void 0, void 0, void 0, function* () {
-    // 1. Create a new branch for this process
-    // 2. Commit each file to the new branch
-    // 3. Create a new PR from this new branch to master
     yield getBaseBranch();
     yield getLastCommitSha();
     let tree = [];
@@ -736,6 +735,11 @@ const commitContribution = () => __awaiter(void 0, void 0, void 0, function* () 
             path: filesToUpdate[f].name
         });
     }
+    tree.push({
+        content: JSON.stringify(contribRC),
+        mode: '100644',
+        path: '.code-communityrc'
+    });
     let response = yield octokit.git.createTree({
         owner,
         repo,
