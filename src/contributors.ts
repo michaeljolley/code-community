@@ -42,7 +42,6 @@ export const addContributor = async (contributorToAdd: IContributor) => {
 
   const shouldProceed = updateRC()
 
-  // TODO: Update files with contributions
   // TODO: Below method only saves the .code-communityrc file. Need
   // to commit all changes. (See https://github.com/mheap/octokit-commit-multiple-files)
 
@@ -115,9 +114,9 @@ const updateRC = (): boolean => {
 
   // if the contributor exists, see if they have any new
   // contribution types.  If so, merge and update.
-  if (existingContributor) {
-    const newContributions = existingContributor.contributions.filter(f => {
-      return contributor.contributions.indexOf(f) < 0
+  if (existingContributor !== undefined) {
+    const newContributions = contributor.contributions.filter(f => {
+      return existingContributor.contributions.indexOf(f) < 0
     })
 
     // If there were no new contributions, we're done so return false.
@@ -161,7 +160,7 @@ const processFiles = async () => {
 
     // Look through content for the badge markup and
     // if found, update
-    const badgeMarkup: string = `${markup_badge_start}\n[![All Contributors](https://img.shields.io/badge/all_contributors-${contribRC.contributors.length}-orange.svg?style=flat-square)](#contributors)${markup_badge_end}`
+    const badgeMarkup: string = `${markup_badge_start}\n[![All Contributors](https://img.shields.io/badge/code_community-${contribRC.contributors.length}-orange.svg?style=flat-square)](#contributors)${markup_badge_end}`
 
     if (badgeStart === -1 && badgeEnd === -1) {
       fileToUpdate.content = `${badgeMarkup}\n${fileToUpdate.content}`
